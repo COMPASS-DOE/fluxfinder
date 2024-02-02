@@ -2,7 +2,8 @@
 # whattheflux
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/COMPASS-DOE/whattheflux/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/COMPASS-DOE/whattheflux/actions/workflows/R-CMD-check.yaml)
+  ![R-CMD-check](https://github.com/COMPASS-DOE/whattheflux/workflows/R-CMD-check/badge.svg)
+  ![Codecov test coverage](https://codecov.io/gh/COMPASS-DOE/whattheflux/branch/main/graph/badge.svg)
 <!-- badges: end -->
 
 The goal of whattheflux is to ...
