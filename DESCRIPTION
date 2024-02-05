@@ -13,6 +13,8 @@ URL: https://compass.pnnl.gov
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Imports:
+    lubridate (>= 1.0)
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

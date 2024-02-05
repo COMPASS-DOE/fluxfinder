@@ -2,3 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# OS files
+.DS_Store
