@@ -1,15 +1,16 @@
 
 #' Read a LI-7810 data file
 #'
-#' @param file Filename to read
+#' @param file Filename to read, character
 #' @param quiet Be quiet? Logical
 #' @importFrom utils read.table
 #' @importFrom lubridate ymd_hms
 #' @return A data frame with the parsed data.
 #' @export
+#' @examples
+#' f <- system.file("extdata/TG10-01087.data", package = "whattheflux")
+#' dat <- wtf_read_LI7810(f)
 wtf_read_LI7810 <- function(file, quiet = FALSE) {
-  basefn <- basename(file)
-  if(!quiet) message("Processing ", basefn)
 
   dat_raw <- readLines(file)
 
@@ -22,7 +23,7 @@ wtf_read_LI7810 <- function(file, quiet = FALSE) {
   # Parse the timezone from the header and use it to make a TIMESTAMP field
   tz <- trimws(gsub("Timezone:\t", "", dat_raw[5], fixed = TRUE))
 
-  # These files have five header lines, then the names of the columns in line 6,
+  # These files have five header lines, the column names in line 6,
   # and then the column units in line 7. We only want the names
   dat_raw <- dat_raw[-c(1:5, 7)]
   # Irritatingly, the units line can repeat in the file. Remove these instances
@@ -31,20 +32,16 @@ wtf_read_LI7810 <- function(file, quiet = FALSE) {
   # \t""\t, causing a read error. Replace these instances
   dat_raw <- gsub("\t\t", "\tnan\t", dat_raw, fixed = TRUE)
 
+  # Read the data, construct TIMESTAMP, add metadata,
+  # and remove unneeded LI-COR DATE and TIME columns
   dat <- read.table(textConnection(dat_raw), na.strings = "nan", header = TRUE)
-
-  # If the try() above succeeded, we have a data frame and can process it
   dat$TIMESTAMP <- lubridate::ymd_hms(paste(dat$DATE, dat$TIME), tz = tz)
   dat$TZ <- tz
-
-  if(!quiet) message("\tRead in ", nrow(dat), " rows of data, ",
-                     min(dat$TIMESTAMP), " to ", max(dat$TIMESTAMP))
-  if(!quiet) message("\tInstrument serial number: ", sn)
   dat$SN <- sn
-  if(!quiet) message("\tInstrument time zone: ", tz)
-
-  # Remove unneeded Licor DATE and TIME columns
   dat$DATE <- dat$TIME <- NULL
+
+  if(!quiet) message("Read in ", nrow(dat), " rows of ", sn, " data, ",
+                     min(dat$TIMESTAMP), " to ", max(dat$TIMESTAMP), " ", tz)
 
   return(dat)
 }

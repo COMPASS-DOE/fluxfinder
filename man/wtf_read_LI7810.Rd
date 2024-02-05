@@ -7,7 +7,7 @@
 wtf_read_LI7810(file, quiet = FALSE)
 }
 \arguments{
-\item{file}{Filename to read}
+\item{file}{Filename to read, character}
 
 \item{quiet}{Be quiet? Logical}
 }
@@ -16,4 +16,8 @@ A data frame with the parsed data.
 }
 \description{
 Read a LI-7810 data file
+}
+\examples{
+f <- system.file("extdata/TG10-01087.data", package = "whattheflux")
+dat <- wtf_read_LI7810(f)
 }
