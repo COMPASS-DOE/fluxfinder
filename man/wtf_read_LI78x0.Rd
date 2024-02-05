@@ -4,10 +4,10 @@
 \alias{wtf_read_LI78x0}
 \title{Internal utility function to read LI-78x0 files}
 \usage{
-wtf_read_LI78x0(dat_raw, model, quiet)
+wtf_read_LI78x0(file, model, quiet)
 }
 \arguments{
-\item{dat_raw}{Raw data, character vector}
+\item{file}{Filename to read, character}
 
 \item{model}{Model name, string}
 

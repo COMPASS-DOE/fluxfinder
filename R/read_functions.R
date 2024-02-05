@@ -2,11 +2,20 @@
 
 #' Internal utility function to read LI-78x0 files
 #'
-#' @param dat_raw Raw data, character vector
+#' @param file Filename to read, character
 #' @param model Model name, string
 #' @param quiet Be quiet? Logical
+#' @importFrom utils read.table
+#' @importFrom lubridate ymd_hms
 #' @return A data frame with the parsed data.
-wtf_read_LI78x0 <- function(dat_raw, model, quiet) {
+wtf_read_LI78x0 <- function(file, model, quiet) {
+
+  dat_raw <- readLines(file)
+
+  # Make sure this is the desired model
+  file_model <- trimws(gsub("Model:\t", "", dat_raw[1], fixed = TRUE))
+  if(file_model != model) stop("This does not appear to be a ", model, " file!")
+
   # Save the machine serial number
   sn <- trimws(gsub("SN:\t", "", dat_raw[2], fixed = TRUE))
   # Parse the timezone from the header and use it to make a TIMESTAMP field
@@ -40,42 +49,24 @@ wtf_read_LI78x0 <- function(dat_raw, model, quiet) {
 #'
 #' @param file Filename to read, character
 #' @param quiet Be quiet? Logical
-#' @importFrom utils read.table
-#' @importFrom lubridate ymd_hms
 #' @return A data frame with the parsed data.
 #' @export
 #' @examples
 #' f <- system.file("extdata/TG10-01087.data", package = "whattheflux")
 #' dat <- wtf_read_LI7810(f)
 wtf_read_LI7810 <- function(file, quiet = FALSE) {
-
-  dat_raw <- readLines(file)
-
-  # Make sure this is a 7810 file
-  model <- trimws(gsub("Model:\t", "", dat_raw[1], fixed = TRUE))
-  if(model != "LI-7810") stop("This does not appear to be a LI-7810 file!")
-
-  wtf_read_LI78x0(dat_raw, model, quiet)
+  wtf_read_LI78x0(file, "LI-7810", quiet)
 }
 
 #' Read a LI-7820 data file
 #'
 #' @param file Filename to read, character
 #' @param quiet Be quiet? Logical
-#' @importFrom utils read.table
-#' @importFrom lubridate ymd_hms
 #' @return A data frame with the parsed data.
 #' @export
 #' @examples
 #' f <- system.file("extdata/TG20-01182.data", package = "whattheflux")
 #' dat <- wtf_read_LI7820(f)
 wtf_read_LI7820 <- function(file, quiet = FALSE) {
-
-  dat_raw <- readLines(file)
-
-  # Make sure this is a 7810 file
-  model <- trimws(gsub("Model:\t", "", dat_raw[1], fixed = TRUE))
-  if(model != "LI-7820") stop("This does not appear to be a LI-7820 file!")
-
-  wtf_read_LI78x0(dat_raw, model, quiet)
+  wtf_read_LI78x0(file, "LI-7820", quiet)
 }
