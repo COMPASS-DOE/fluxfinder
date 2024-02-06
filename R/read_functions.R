@@ -3,11 +3,13 @@
 #' Internal utility function to read LI-78x0 files
 #'
 #' @param file Filename to read, character
-#' @param model Model name, string
+#' @param model Instrument model name, string
 #' @param quiet Be quiet? Logical
+#' @details The is an internal function used by \code{\link{wtf_read_LI7810}}
+#' and \code{\link{wtf_read_LI7820}}, and not normally called by users.
 #' @importFrom utils read.table
 #' @importFrom lubridate ymd_hms
-#' @return A data frame with the parsed data.
+#' @return A \code{\link{data.frame}} with the parsed data.
 wtf_read_LI78x0 <- function(file, model, quiet) {
 
   dat_raw <- readLines(file)
@@ -39,7 +41,7 @@ wtf_read_LI78x0 <- function(file, model, quiet) {
   dat$MODEL <- model
   dat$DATE <- dat$TIME <- NULL
 
-  if(!quiet) message("Read ", nrow(dat), " rows of ", sn, " data, ",
+  if(!quiet) message(basename(file), ": read ", nrow(dat), " rows of ", sn, " data, ",
                      min(dat$TIMESTAMP), " to ", max(dat$TIMESTAMP), " ", tz)
 
   return(dat)
@@ -49,7 +51,8 @@ wtf_read_LI78x0 <- function(file, model, quiet) {
 #'
 #' @param file Filename to read, character
 #' @param quiet Be quiet? Logical
-#' @return A data frame with the parsed data.
+#' @return A \code{\link{data.frame}} with the parsed data.
+#' @details Currently LI-7810 and LI-7820 files are handled identically.
 #' @export
 #' @examples
 #' f <- system.file("extdata/TG10-01087.data", package = "whattheflux")
@@ -62,7 +65,8 @@ wtf_read_LI7810 <- function(file, quiet = FALSE) {
 #'
 #' @param file Filename to read, character
 #' @param quiet Be quiet? Logical
-#' @return A data frame with the parsed data.
+#' @return A \code{\link{data.frame}} with the parsed data.
+#' @details Currently LI-7810 and LI-7820 files are handled identically.
 #' @export
 #' @examples
 #' f <- system.file("extdata/TG20-01182.data", package = "whattheflux")

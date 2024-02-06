@@ -12,10 +12,13 @@ wtf_read_LI7810(file, quiet = FALSE)
 \item{quiet}{Be quiet? Logical}
 }
 \value{
-A data frame with the parsed data.
+A \code{\link{data.frame}} with the parsed data.
 }
 \description{
 Read a LI-7810 data file
+}
+\details{
+Currently LI-7810 and LI-7820 files are handled identically.
 }
 \examples{
 f <- system.file("extdata/TG10-01087.data", package = "whattheflux")
