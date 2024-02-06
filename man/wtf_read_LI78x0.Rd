@@ -9,13 +9,17 @@ wtf_read_LI78x0(file, model, quiet)
 \arguments{
 \item{file}{Filename to read, character}
 
-\item{model}{Model name, string}
+\item{model}{Instrument model name, string}
 
 \item{quiet}{Be quiet? Logical}
 }
 \value{
-A data frame with the parsed data.
+A \code{\link{data.frame}} with the parsed data.
 }
 \description{
 Internal utility function to read LI-78x0 files
+}
+\details{
+The is an internal function used by \code{\link{wtf_read_LI7810}}
+and \code{\link{wtf_read_LI7820}}, and not normally called by users.
 }
