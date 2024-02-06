@@ -17,7 +17,14 @@
 #' @importFrom stats lm coefficients
 #' @export
 #' @examples
+#' # Toy data
 #' wtf_fit_models(cars$speed, cars$dist)
+#' # Real data
+#' f <- system.file("extdata/TG10-01087.data", package = "whattheflux")
+#' dat <- wtf_read_LI7810(f)[1:75,] # manually isolate first observation
+#' dat$SECONDS <- dat$SECONDS - min(dat$SECONDS) # normalize time to start at 0
+#' plot(dat$SECONDS, dat$CO2)
+#' wtf_fit_models(dat$SECONDS, dat$CO2)
 wtf_fit_models <- function(time, conc, quiet = FALSE) {
   # Basic linear model
   try(mod <- lm(conc ~ time))
