@@ -1,6 +1,6 @@
 test_that("quiet functionality works", {
   # Check that the wtf_message and wtf_warning functions respect quiet option
-  options(whattheflux.quiet = TRUE)
+  withr::local_options(whattheflux.quiet = TRUE)
   expect_no_message(wtf_message("hi"))
   expect_no_warning(wtf_warning("hi"))
 
