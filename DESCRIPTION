@@ -20,6 +20,7 @@ Imports:
     lubridate (>= 1.0),
     MASS (>= 7.0)
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    withr (>= 2.0)
 Config/testthat/edition: 3
 RoxygenNote: 7.2.3
