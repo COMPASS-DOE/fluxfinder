@@ -4,14 +4,12 @@
 \alias{wtf_read_LI78x0}
 \title{Internal utility function to read LI-78x0 files}
 \usage{
-wtf_read_LI78x0(file, model, quiet)
+wtf_read_LI78x0(file, model)
 }
 \arguments{
 \item{file}{Filename to read, character}
 
 \item{model}{Instrument model name, string}
-
-\item{quiet}{Be quiet? Logical}
 }
 \value{
 A \code{\link{data.frame}} with the parsed data.

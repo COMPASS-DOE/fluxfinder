@@ -4,12 +4,10 @@
 \alias{wtf_read_LI7820}
 \title{Read a LI-7820 data file}
 \usage{
-wtf_read_LI7820(file, quiet = FALSE)
+wtf_read_LI7820(file)
 }
 \arguments{
 \item{file}{Filename to read, character}
-
-\item{quiet}{Be quiet? Logical}
 }
 \value{
 A \code{\link{data.frame}} with the parsed data.

@@ -4,14 +4,12 @@
 \alias{wtf_fit_models}
 \title{Fit various models to gas concentration data}
 \usage{
-wtf_fit_models(time, conc, quiet = FALSE)
+wtf_fit_models(time, conc)
 }
 \arguments{
 \item{time}{Relative time of observation (typically seconds), numeric}
 
 \item{conc}{Greenhouse gas concentration, numeric}
-
-\item{quiet}{Be quiet? Logical}
 }
 \value{
 A wide-form \code{\link{data.frame}} with fit statistics for linear,

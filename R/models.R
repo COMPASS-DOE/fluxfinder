@@ -4,7 +4,6 @@
 #'
 #' @param time Relative time of observation (typically seconds), numeric
 #' @param conc Greenhouse gas concentration, numeric
-#' @param quiet Be quiet? Logical
 #' @return A wide-form \code{\link{data.frame}} with fit statistics for linear,
 #' robust linear, and polynomial models. By default, extensive details are
 #' provided only for the linear fi; for robust linear and polynomial, only
@@ -25,11 +24,11 @@
 #' dat$SECONDS <- dat$SECONDS - min(dat$SECONDS) # normalize time to start at 0
 #' plot(dat$SECONDS, dat$CO2)
 #' wtf_fit_models(dat$SECONDS, dat$CO2)
-wtf_fit_models <- function(time, conc, quiet = FALSE) {
+wtf_fit_models <- function(time, conc) {
   # Basic linear model
   try(mod <- lm(conc ~ time))
   if(!exists("mod")) {
-    if(!quiet) warning("Could not fit linear model")
+    wtf_warning("Could not fit linear model")
     return(NULL)
   }
 
@@ -49,7 +48,7 @@ wtf_fit_models <- function(time, conc, quiet = FALSE) {
     coefficients(robust)[2]
   },
   error = function(e) {
-    if(!quiet) warning("Could not fit robust linear model")
+    wtf_warning("Could not fit robust linear model")
     NA_real_
   })
 
@@ -59,7 +58,7 @@ wtf_fit_models <- function(time, conc, quiet = FALSE) {
     summary(poly)$r.squared
   },
   error = function(e) {
-    if(!quiet) warning("Could not fit polynomial model")
+    wtf_warning("Could not fit polynomial model")
     NA_real_
   })
 
