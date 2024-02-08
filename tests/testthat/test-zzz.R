@@ -4,7 +4,7 @@ test_that("quiet functionality works", {
   expect_no_message(wtf_message("hi"))
   expect_no_warning(wtf_warning("hi"))
 
-  options(whattheflux.quiet = FALSE)
+  withr::local_options(whattheflux.quiet = FALSE)
   expect_message(wtf_message("hi"), regexp = "hi")
   expect_warning(wtf_warning("hi"), regexp = "hi")
 })
