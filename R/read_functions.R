@@ -4,13 +4,12 @@
 #'
 #' @param file Filename to read, character
 #' @param model Instrument model name, string
-#' @param quiet Be quiet? Logical
 #' @details The is an internal function used by \code{\link{wtf_read_LI7810}}
 #' and \code{\link{wtf_read_LI7820}}, and not normally called by users.
 #' @importFrom utils read.table
 #' @importFrom lubridate ymd_hms
 #' @return A \code{\link{data.frame}} with the parsed data.
-wtf_read_LI78x0 <- function(file, model, quiet) {
+wtf_read_LI78x0 <- function(file, model) {
 
   dat_raw <- readLines(file)
 
@@ -41,8 +40,8 @@ wtf_read_LI78x0 <- function(file, model, quiet) {
   dat$MODEL <- model
   dat$DATE <- dat$TIME <- NULL
 
-  if(!quiet) message(basename(file), ": read ", nrow(dat), " rows of ", sn, " data, ",
-                     min(dat$TIMESTAMP), " to ", max(dat$TIMESTAMP), " ", tz)
+  wtf_message(basename(file), ": read ", nrow(dat), " rows of ", sn, " data, ",
+              min(dat$TIMESTAMP), " to ", max(dat$TIMESTAMP), " ", tz)
 
   return(dat)
 }
@@ -50,27 +49,25 @@ wtf_read_LI78x0 <- function(file, model, quiet) {
 #' Read a LI-7810 data file
 #'
 #' @param file Filename to read, character
-#' @param quiet Be quiet? Logical
 #' @return A \code{\link{data.frame}} with the parsed data.
 #' @details Currently LI-7810 and LI-7820 files are handled identically.
 #' @export
 #' @examples
 #' f <- system.file("extdata/TG10-01087.data", package = "whattheflux")
 #' dat <- wtf_read_LI7810(f)
-wtf_read_LI7810 <- function(file, quiet = FALSE) {
-  wtf_read_LI78x0(file, "LI-7810", quiet)
+wtf_read_LI7810 <- function(file) {
+  wtf_read_LI78x0(file, "LI-7810")
 }
 
 #' Read a LI-7820 data file
 #'
 #' @param file Filename to read, character
-#' @param quiet Be quiet? Logical
 #' @return A \code{\link{data.frame}} with the parsed data.
 #' @details Currently LI-7810 and LI-7820 files are handled identically.
 #' @export
 #' @examples
 #' f <- system.file("extdata/TG20-01182.data", package = "whattheflux")
 #' dat <- wtf_read_LI7820(f)
-wtf_read_LI7820 <- function(file, quiet = FALSE) {
-  wtf_read_LI78x0(file, "LI-7820", quiet)
+wtf_read_LI7820 <- function(file) {
+  wtf_read_LI78x0(file, "LI-7820")
 }
