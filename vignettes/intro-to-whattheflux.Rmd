@@ -1,0 +1,56 @@
+---
+title: "Introduction to whattheflux"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to whattheflux}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Load some sample data
+
+```{r setup}
+library(whattheflux)
+
+# Data from a LI-7810
+f <- system.file("extdata/TG10-01087.data", package = "whattheflux")
+dat <- wtf_read_LI7810(f)
+dat[1:6, 1:9] # full raw dataset has 500+ rows and 25 columns
+```
+
+The analyzer data is basically a stream of timestamps and associated
+greenhouse gas concentration measurements. For this to be useful, we need to 
+associate it with metadata about the measurements we made: when they started,
+how long they lasted, plot/treatment/collar information, etc. 
+
+```{r metadata}
+# Accompanying metadata
+md <- system.file("extdata/TG10-01087-metadata.csv", package = "whattheflux")
+metadat <- read.csv(md)
+
+# Convenience function to fill in missing dead band and observation length info
+metadat <- wtf_fill_metadata(metadat)
+
+print(metadat)
+```
+
+The `wtf_metadata_match` function matches up the data, using the `TIMESTAMP`
+columns that `wtf_read_LI7810` helpfully created when it read the file.
+
+```{r matching, fig.width=6}
+dat$metadat_row <- wtf_metadata_match(dat$TIMESTAMP, 
+                                           metadat$Date, metadat$Start_time,
+                                           metadat$Dead_band, metadat$Obs_length)
+metadat$metadat_row <- seq_len(nrow(metadat))
+
+# ...and plot
+library(ggplot2)
+ggplot(dat, aes(TIMESTAMP, CO2, color = factor(metadat_row))) + geom_point()
+```
