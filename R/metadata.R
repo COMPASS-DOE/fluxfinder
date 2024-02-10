@@ -1,7 +1,6 @@
 # metadata.R
 
 
-
 #' Convenience function to fill in missing measurement metadata
 #'
 #' @param metadat Metadata, data frame
@@ -47,7 +46,6 @@ wtf_fill_metadata <- function(metadat,
 
   return(metadat)
 }
-
 
 
 #' Match metadata info with a vector of data timestamps
