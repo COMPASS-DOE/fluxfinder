@@ -1,4 +1,4 @@
-# read_functions.R
+# read_data_functions.R
 
 #' Internal utility function to read LI-78x0 files
 #'
