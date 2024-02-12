@@ -79,6 +79,7 @@ wtf_read_LI7820 <- function(file) {
 #' @param tz Time zone of the file, character (optional)
 #' @return A \code{\link{data.frame}} with the parsed data.
 #' @importFrom lubridate mdy_hms
+#' @importFrom utils read.csv
 #' @export
 #' @examples
 #' f <- system.file("extdata/LGR-data.csv", package = "whattheflux")
