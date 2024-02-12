@@ -71,3 +71,23 @@ wtf_read_LI7810 <- function(file) {
 wtf_read_LI7820 <- function(file) {
   wtf_read_LI78x0(file, "LI-7820")
 }
+
+
+#' Read a LGR-xxxx data file
+#'
+#' @param file Filename to read, character
+#' @param tz Time zone of the file, character (optional)
+#' @return A \code{\link{data.frame}} with the parsed data.
+#' @export
+#' @examples
+#' f <- system.file("extdata/LGR-data.csv", package = "whattheflux")
+#' dat <- wtf_read_LGR(f)
+wtf_read_LGR <- function(file, tz = "UTC") {
+  dat_raw <- readLines(file)
+
+  # A single header line encodes version number, date, and serial number
+  dat <- read.csv(textConnection(dat_raw[-1]), check.names = FALSE)
+  dat$Time <- mdy_hms(dat$Time)
+  dat$SN <- trimws(gsub(".*SN:", "", dat_raw[1]))
+  return(dat)
+}
