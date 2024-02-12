@@ -23,3 +23,14 @@ test_that("wtf_read_LI7820 works", {
   expect_true("SN" %in% names(x)) # parsed serial number from header
 
 })
+
+test_that("wtf_read_LGR works", {
+
+  options(whattheflux.quiet = TRUE)
+
+  # Good data
+  x <- wtf_read_LGR("data/LGR-good-data.csv")
+  expect_s3_class(x, "data.frame")
+  expect_true("SN" %in% names(x)) # parsed serial number from header
+
+})
