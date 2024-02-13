@@ -29,8 +29,10 @@ test_that("wtf_read_LGR works", {
   withr::local_options(list(whattheflux.quiet = TRUE))
 
   # Good data
-  x <- wtf_read_LGR("data/LGR-good-data.csv")
+  x <- wtf_read_LGR915("data/LGR-good-data.csv")
   expect_s3_class(x, "data.frame")
   expect_true("SN" %in% names(x)) # parsed serial number from header
-
+  # Respects time zone setting
+  x <- wtf_read_LGR915("data/LGR-good-data.csv", tz = "EST")
+  expect_identical(tz(x$Time[1]), "EST")
 })

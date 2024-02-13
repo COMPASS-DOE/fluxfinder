@@ -3,7 +3,7 @@
 export(wtf_fill_metadata)
 export(wtf_fit_models)
 export(wtf_metadata_match)
-export(wtf_read_LGR)
+export(wtf_read_LGR915)
 export(wtf_read_LI7810)
 export(wtf_read_LI7820)
 importFrom(MASS,rlm)
