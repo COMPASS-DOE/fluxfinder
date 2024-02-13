@@ -1,6 +1,6 @@
 test_that("wtf_read_LI7810 works", {
 
-  options(whattheflux.quiet = TRUE)
+  withr::local_options(list(whattheflux.quiet = TRUE))
 
   # Good data
   x <- wtf_read_LI7810("data/TG10-01087-good.data")
@@ -15,7 +15,7 @@ test_that("wtf_read_LI7810 works", {
 
 test_that("wtf_read_LI7820 works", {
 
-  options(whattheflux.quiet = TRUE)
+  withr::local_options(list(whattheflux.quiet = TRUE))
 
   # Good data
   x <- wtf_read_LI7820("data/TG20-01182-good.data")
@@ -26,7 +26,7 @@ test_that("wtf_read_LI7820 works", {
 
 test_that("wtf_read_LGR works", {
 
-  options(whattheflux.quiet = TRUE)
+  withr::local_options(list(whattheflux.quiet = TRUE))
 
   # Good data
   x <- wtf_read_LGR("data/LGR-good-data.csv")
