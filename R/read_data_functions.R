@@ -71,3 +71,29 @@ wtf_read_LI7810 <- function(file) {
 wtf_read_LI7820 <- function(file) {
   wtf_read_LI78x0(file, "LI-7820")
 }
+
+
+#' Read a LGR 915-0011 data file
+#'
+#' @param file Filename to read, character
+#' @param tz Time zone of the file, character (optional)
+#' @return A \code{\link{data.frame}} with the parsed data.
+#' @importFrom lubridate mdy_hms
+#' @importFrom utils read.csv
+#' @details The LGR 915-0011 was an Ultra-Portable Greenhouse Gas Analyzer
+#' made by Los Gatos Research.
+#' @export
+#' @examples
+#' f <- system.file("extdata/LGR-data.csv", package = "whattheflux")
+#' dat <- wtf_read_LGR915(f)
+#' dat <- wtf_read_LGR915(f, tz = "EST") # specify time zone of the measurements
+wtf_read_LGR915 <- function(file, tz = "UTC") {
+  dat_raw <- readLines(file)
+
+  # A single header line encodes version number, date, and serial number
+  dat <- read.csv(textConnection(dat_raw[-1]), check.names = FALSE)
+  dat$Time <- mdy_hms(dat$Time, tz = tz)
+  dat$SN <- trimws(gsub(".*SN:", "", dat_raw[1]))
+  dat$MODEL <- "915-0011"
+  return(dat)
+}
