@@ -62,10 +62,6 @@ wtf_fit_models <- function(time, conc) {
     NA_real_
   })
 
-  res <- cbind(model_stats, slope_stats, intercept_stats)
-
-  # Round to a sensible number of digits and return
-  numerics <- sapply(res, is.numeric)
-  res[numerics] <- round(res[numerics], 3)
-  return(res)
+  # Combine and return
+  return(cbind(model_stats, slope_stats, intercept_stats))
 }
