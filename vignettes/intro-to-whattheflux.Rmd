@@ -49,13 +49,42 @@ print(metadat)
 The `wtf_metadata_match` function matches up the data, using the `TIMESTAMP`
 columns that `wtf_read_LI7810` helpfully created when it read the file.
 
-```{r matching, fig.width=6}
+```{r matching, fig.width=8}
 dat$metadat_row <- wtf_metadata_match(dat$TIMESTAMP, 
-                                           metadat$Date, metadat$Start_time,
-                                           metadat$Dead_band, metadat$Obs_length)
+                                      metadat$Date, metadat$Start_time,
+                                      metadat$Dead_band, metadat$Obs_length)
+dat$Plot <- metadat$Plot[dat$metadat_row]
 metadat$metadat_row <- seq_len(nrow(metadat))
 
 # ...and plot
 library(ggplot2)
-ggplot(dat, aes(TIMESTAMP, CO2, color = factor(metadat_row))) + geom_point()
+p <- ggplot(dat, aes(TIMESTAMP, CO2, color = Plot)) + geom_point()
+print(p)
 ```
+
+Some of these are clearly not correct--the measurement time seems to be shorter
+then 60 seconds for the C, D, and E plots:
+
+```{r circles, fig.width=8, echo=FALSE, message=FALSE}
+library(lubridate)
+p + annotate("rect", ymin = 455, ymax = 476, 
+             xmin = ymd_hms("2022-10-27 10:39:30", tz = "EST"), 
+             xmax = ymd_hms("2022-10-27 10:43:30", tz = "EST"), 
+             color = "red", fill = NA, linewidth = 1.5)
+```
+
+In real life we'd probably want to correct the faulty metadata at its source.
+Here, we change the values programmatically and re-match:
+
+```{r matching2, fig.width=8}
+metadat$Obs_length[3:5] <- c(30, 45, 45)
+dat$metadat_row <- wtf_metadata_match(dat$TIMESTAMP, 
+                                      metadat$Date, metadat$Start_time,
+                                      metadat$Dead_band, metadat$Obs_length)
+dat$Plot <- metadat$Plot[dat$metadat_row]
+
+p %+% dat
+```
+
+That looks better!
+
