@@ -94,10 +94,10 @@ wtf_metadata_match <- function(data_timestamps,
 
   # The metadata dates and times shouldn't be empty
   if(any(is.na(start_dates))) {
-    wtf_warning("One or more metadata dates are missing")
+    warning("One or more metadata dates are missing")
   }
   if(any(is.na(start_times))) {
-    wtf_warning("One or more metadata times are missing")
+    warning("One or more metadata times are missing")
   }
 
   # Convert things to POSIXct and check validity

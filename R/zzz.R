@@ -6,10 +6,3 @@ wtf_message <- function(...) {
   }
   message(...)
 }
-
-wtf_warning <- function(...) {
-  if (getOption("whattheflux.quiet", default = FALSE)) {
-    return()
-  }
-  warning(...)
-}
