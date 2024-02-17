@@ -85,6 +85,22 @@ test_that("wtf_metadata_match works", {
   expect_silent(x <- wtf_metadata_match(d_t, s_d, s_t, db, ol))
   expect_identical(x, c(1, 1, 2, NA_real_))
 
+  # Warns on missing metadata dates or times
+  suppressMessages({
+    s_d[1] <- NA
+    expect_warning(wtf_metadata_match(d_t, s_d, s_t, db, ol),
+                   regexp = "dates are missing")
+    s_d[1] <- "2024-01-01"
+    s_t[2] <- NA
+    # hms() behavior with NAs is different than ymd(), so TWO
+    # warnings get generated
+    expect_warning(
+      expect_warning(wtf_metadata_match(d_t, s_d, s_t, db, ol),
+                                  regexp = "times are missing"),
+      regexp = "failed to parse")
+
+  })
+
   # Gives a message if there are unmatched metadata entries
   s_d <- c("2024-01-01", "2024-01-01", "2024-01-10")
   s_t <- c("13:00:00", "13:05:00", "13:10:00")

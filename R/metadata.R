@@ -92,6 +92,15 @@ wtf_metadata_match <- function(data_timestamps,
   stopifnot(length(start_dates) == length(dead_bands))
   stopifnot(length(start_dates) == length(obs_lengths))
 
+  # The metadata dates and times shouldn't be empty
+  if(any(is.na(start_dates))) {
+    wtf_warning("One or more metadata dates are missing")
+  }
+  if(any(is.na(start_times))) {
+    wtf_warning("One or more metadata times are missing")
+  }
+
+  # Convert things to POSIXct and check validity
   if(is.character(data_timestamps)) data_timestamps <- ymd_hms(data_timestamps)
   stopifnot(is.POSIXct(data_timestamps))
 
@@ -114,7 +123,7 @@ wtf_metadata_match <- function(data_timestamps,
   # single machine that generated the data
   ord <- order(start_timestamps)
   overlaps <- head(stop_timestamps[ord], -1) >= tail(start_timestamps[ord], -1)
-  if(any(overlaps)) {
+  if(any(overlaps, na.rm = TRUE)) {
     stop("start_timestamps overlaps: ",
          paste(which(overlaps) + 1, collapse = ", "))
   }
