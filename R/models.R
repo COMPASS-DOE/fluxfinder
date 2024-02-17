@@ -28,7 +28,7 @@ wtf_fit_models <- function(time, conc) {
   # Basic linear model
   try(mod <- lm(conc ~ time))
   if(!exists("mod")) {
-    wtf_warning("Could not fit linear model")
+    warning("Could not fit linear model")
     return(NULL)
   }
 
@@ -48,7 +48,7 @@ wtf_fit_models <- function(time, conc) {
     coefficients(robust)[2]
   },
   error = function(e) {
-    wtf_warning("Could not fit robust linear model")
+    warning("Could not fit robust linear model")
     NA_real_
   })
 
@@ -58,7 +58,7 @@ wtf_fit_models <- function(time, conc) {
     summary(poly)$r.squared
   },
   error = function(e) {
-    wtf_warning("Could not fit polynomial model")
+    warning("Could not fit polynomial model")
     NA_real_
   })
 

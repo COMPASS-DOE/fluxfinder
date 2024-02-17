@@ -85,6 +85,16 @@ test_that("wtf_metadata_match works", {
   expect_silent(x <- wtf_metadata_match(d_t, s_d, s_t, db, ol))
   expect_identical(x, c(1, 1, 2, NA_real_))
 
+  # Warns on missing metadata dates
+  suppressMessages({
+    s_d[1] <- NA
+    expect_warning(wtf_metadata_match(d_t, s_d, s_t, db, ol),
+                   regexp = "dates are missing")
+  })
+  # We also warn on missing times, but checking that requires a nested
+  # expect_warning here, because of hms() behavior, which crashes
+  # on GitHub Actions
+
   # Gives a message if there are unmatched metadata entries
   s_d <- c("2024-01-01", "2024-01-01", "2024-01-10")
   s_t <- c("13:00:00", "13:05:00", "13:10:00")
