@@ -30,8 +30,13 @@ dat <- wtf_read_LI7810(f)
 dat[1:6, 1:9] # full raw dataset has 500+ rows and 25 columns
 ```
 
-The analyzer data is basically a stream of timestamps and associated
-greenhouse gas concentration measurements:
+The data frame returned by `wtf_read_LI7810` is all data from the raw
+[LI-7810](https://www.licor.com/env/products/trace-gas/LI-7810) file,
+except that `TIMESTAMP`, `TZ` (time zone of the timestamps),
+`SN` (serial number), and `MODEL` columns have been added.
+
+The analyzer data is basically a stream of measured 
+greenhouse gas concentrations:
 
 ```{r overview-plot, fig.width=8}
 library(ggplot2)
@@ -40,8 +45,8 @@ ggplot(dat, aes(TIMESTAMP, CO2)) + geom_point()
 
 ## Match with metadata
 
-For this to be useful, we need to 
-associate it with metadata about the measurements we made: when they started,
+For these data to be useful, we need to 
+associate them with _metadata_ about the measurements: when they were started,
 how long they lasted, plot/treatment/collar information, etc. 
 
 ```{r metadata}
@@ -55,13 +60,16 @@ metadat <- wtf_fill_metadata(metadat)
 print(metadat)
 ```
 
-The `wtf_metadata_match` function matches up the data, using the `TIMESTAMP`
-columns that `wtf_read_LI7810` helpfully created when it read the file.
+The `wtf_metadata_match` function matches up the data with metadata,
+using the `TIMESTAMP` column that `wtf_read_LI7810` helpfully created
+when it read the data file.
 
 ```{r matching, fig.width=8}
 dat$metadat_row <- wtf_metadata_match(dat$TIMESTAMP, 
                                       metadat$Date, metadat$Start_time,
                                       metadat$Dead_band, metadat$Obs_length)
+
+# Based on the row match information, add a "Plot" column to the data
 dat$Plot <- metadat$Plot[dat$metadat_row]
 metadat$metadat_row <- seq_len(nrow(metadat))
 
