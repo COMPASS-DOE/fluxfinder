@@ -73,8 +73,8 @@ p + annotate("rect", ymin = 455, ymax = 476,
              color = "red", fill = NA, linewidth = 1.5)
 ```
 
-In real life we'd probably want to correct the faulty metadata at its source.
-Here, we change the values programmatically and re-match:
+In real life we'd want to correct the faulty metadata at its source.
+Here, we'll just change the values programmatically and re-match:
 
 ```{r matching2, fig.width=8}
 metadat$Obs_length[3:5] <- c(30, 45, 45)

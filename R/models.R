@@ -65,3 +65,89 @@ wtf_fit_models <- function(time, conc) {
   # Combine and return
   return(cbind(model_stats, slope_stats, intercept_stats))
 }
+
+
+
+#' Normalize a vector of times
+#'
+#' @param time A vector of time values, either \code{\link{POSIXct}} or numeric
+#' @param normalize Normalize the values so that first is zero? Logical
+#' @return A numeric vector of normalized values (if \code{normalize_time} is
+#' TRUE) or the original vector if not.
+#' @export
+#' @examples
+#' wtf_normalize_time(2:4) # returns 0:2
+#' wtf_normalize_time(2:4, FALSE) # returns 2:4
+wtf_normalize_time <- function(time, normalize = TRUE) {
+  if(normalize) {
+    as.numeric(time) - as.numeric(min(time, na.rm = TRUE))
+  } else {
+    time
+  }
+}
+
+
+#' Compute fluxes for multiple groups (measurements)
+#'
+#' @param data A \code{\link{data.frame}} (or tibble or data.table)
+#' @param group_column Name of the grouping column in \code{data}, character;
+#' pass NULL to run with no grouping
+#' @param time_column Name of the time column in \code{data}, character
+#' @param conc_column Name of the gas concentration column in \code{data}, character
+#' @param volume XXX
+#' @param area XXX
+#' @param normalize_time Normalize the values so that first is zero? Logical
+#' @param fit_function Optional flux-fit function;
+#' default is \code{\link{wtf_fit_models}}
+#' @param ... Other parameters passed to \code{fit_function}
+#' @return A data.frame with one row per \code{group_column} value. It will
+#' always include the mean value of \code{time_column} for that group, but other
+#' column depend on what is returned from the \code{fit_function}.
+#' @export
+#' @examples
+#' # No grouping
+#' wtf_compute_fluxes(cars, group_column = NULL, "speed", "dist")
+#' # With grouping
+#' cars$Plot <- c("A", "B")
+#' wtf_compute_fluxes(cars, "Plot", "speed", "dist")
+#' # See the introductory vignette for a fully-worked example with real data
+wtf_compute_fluxes <- function(data,
+                               group_column,
+                               time_column,
+                               conc_column,
+                               volume,
+                               area,
+                               normalize_time = TRUE,
+                               fit_function = wtf_fit_models,
+                               ...) {
+
+  # Convert to a data.frame so that we can be sure column-selection code
+  # will work as intended; tibbles and data.tables have different behavior
+  data <- as.data.frame(data)
+
+  # Split by grouping variable
+  if(is.null(group_column)) {
+    x <- list(data)
+  } else {
+    x <- split(data, data[group_column])
+  }
+
+  # Compute flux for each sample
+  # passing volume and area?
+  f <- function(x, ...) {
+    x$.norm_time <- wtf_normalize_time(x[,time_column], normalize_time)
+    out <- fit_function(x$.norm_time, x[,conc_column], ...)
+    out[time_column] <- mean(x$.norm_time)
+    return(out)
+  }
+
+  # Apply and combine
+  y <- lapply(x, f, ...)
+  z <- do.call(rbind, y)
+
+  # Clean up row names, column ordering, etc., and return
+  if(!is.null(group_column)) z[group_column] <- names(y)
+  row.names(z) <- NULL
+  onleft <- c(group_column, time_column)
+  return(z[c(onleft, setdiff(names(z), onleft))])
+}
