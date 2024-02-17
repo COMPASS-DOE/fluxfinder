@@ -102,7 +102,7 @@ wtf_normalize_time <- function(time, normalize = TRUE) {
 #' @param ... Other parameters passed to \code{fit_function}
 #' @return A data.frame with one row per \code{group_column} value. It will
 #' always include the mean value of \code{time_column} for that group, but other
-#' column depend on what is returned from the \code{fit_function}.
+#' columns depend on what is returned by the \code{fit_function}.
 #' @export
 #' @examples
 #' # No grouping
