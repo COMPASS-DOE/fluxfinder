@@ -137,7 +137,7 @@ wtf_compute_fluxes <- function(data,
   f <- function(x, ...) {
     x$.norm_time <- wtf_normalize_time(x[,time_column], normalize_time)
     out <- fit_function(x$.norm_time, x[,conc_column], ...)
-    out[time_column] <- mean(x$.norm_time)
+    out[time_column] <- mean(x[,time_column])
     return(out)
   }
 
