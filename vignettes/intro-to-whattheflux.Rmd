@@ -57,6 +57,8 @@ metadat <- read.csv(md)
 # Convenience function to fill in missing dead band and observation length info
 metadat <- wtf_fill_metadata(metadat)
 
+# Note: set "options(whattheflux.quiet = TRUE)" to suppress messages like these
+
 print(metadat)
 ```
 
