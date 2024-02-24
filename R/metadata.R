@@ -1,53 +1,6 @@
 # metadata.R
 
 
-#' Convenience function to fill in missing measurement metadata
-#'
-#' @param metadat Metadata, data frame
-#' @param dead_band_default Default dead band value, numeric (seconds)
-#' @param obs_length_default Default observation length value, numeric (seconds)
-#' @return The metadata data frame, with missing values filled in.
-#' @export
-#' @examples
-#' metadat <- data.frame(Plot = 1:2, Dead_band = c(1, NA))
-#' metadat <- wtf_fill_metadata(metadat)
-#' # The missing entry is the 'Dead_band' column has been changed to the default
-#' # (60), and a new column 'Obs_length' has been created and filled in
-wtf_fill_metadata <- function(metadat,
-                              dead_band_default = 10,
-                              obs_length_default = 60) {
-
-  stopifnot(is.data.frame(metadat))
-  stopifnot(is.numeric(dead_band_default))
-  stopifnot(is.numeric(obs_length_default))
-
-  # Fill in defaults, if necessary
-  if("Dead_band" %in% names(metadat)) {
-    isna <- is.na(metadat$Dead_band)
-    if(any(isna)) {
-      wtf_message("Replacing ", sum(isna), " empty Dead_band values with default ", dead_band_default)
-      metadat$Dead_band[isna] <- dead_band_default
-    }
-  } else {
-    wtf_message("Creating Dead_band column")
-    metadat$Dead_band <- dead_band_default
-  }
-
-  if("Obs_length" %in% names(metadat)) {
-    isna <- is.na(metadat$Obs_length)
-    if(any(isna)) {
-      wtf_message("Replacing ", sum(isna), " empty Obs_length values with default ", obs_length_default)
-      metadat$Obs_length[isna] <- obs_length_default
-    }
-  } else {
-    wtf_message("Creating Obs_length column")
-    metadat$Obs_length <- obs_length_default
-  }
-
-  return(metadat)
-}
-
-
 #' Match metadata info with a vector of data timestamps
 #'
 #' @param data_timestamps Data timestamps, either character (YYYY-MM-DD HH:MM:SS) or \code{\link{POSIXct}}
@@ -98,6 +51,12 @@ wtf_metadata_match <- function(data_timestamps,
   }
   if(any(is.na(start_times))) {
     warning("One or more metadata times are missing")
+  }
+  if(any(is.na(dead_bands))) {
+    warning("One or more dead bands are missing")
+  }
+  if(any(is.na(obs_lengths))) {
+    warning("One or more observation lengths are missing")
   }
 
   # Convert things to POSIXct and check validity
