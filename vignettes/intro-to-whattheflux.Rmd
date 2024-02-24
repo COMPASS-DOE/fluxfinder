@@ -59,6 +59,11 @@ metadat <- read.csv(md)
 print(metadat)
 ```
 
+**Important note**: in this sample metadata, our measurement identified is
+labeled `Plot`, but this could be named, and refer to, anything: bottle,
+sample, collar, etc. It's simply an identifier for _this_ measurement, i.e.
+this row.
+
 The `wtf_metadata_match` function matches up the data with metadata,
 using the `TIMESTAMP` column that `wtf_read_LI7810` helpfully created
 when it read the data file.
