@@ -1,39 +1,4 @@
 
-test_that("wtf_fill_metadata works", {
-
-  # Handles bad input
-  expect_error(wtf_fill_metadata(1),
-               regexp = "is.data.frame\\(metadat\\)")
-  expect_error(wtf_fill_metadata(cars, dead_band_default = "1"),
-               regexp = "is.numeric\\(dead_band_default\\)")
-  expect_error(wtf_fill_metadata(cars, obs_length_default = "1"),
-               regexp = "is.numeric\\(obs_length_default\\)")
-
-  # Creates columns
-  x <- data.frame(Obs_length = 1)
-  expect_message(y <- wtf_fill_metadata(x, dead_band_default = 2),
-                 regexp = "Creating Dead_band")
-  expect_true("Dead_band" %in% names(y))
-  expect_identical(y$Dead_band, 2)
-  x <- data.frame(Dead_band = 1)
-  expect_message(y <- wtf_fill_metadata(x, obs_length_default = 2),
-                 regexp = "Creating Obs_length")
-  expect_true("Obs_length" %in% names(y))
-  expect_identical(y$Obs_length, 2)
-
-  # Fills in data
-  x <- data.frame(Dead_band = c(1, NA), Obs_length = 60)
-  expect_message(y <- wtf_fill_metadata(x, dead_band_default = 2),
-                 regexp = "Replacing 1 empty Dead_band")
-  expect_identical(dim(x), dim(y))
-  expect_identical(y$Dead_band, c(1, 2))
-  x <- data.frame(Dead_band = 10, Obs_length = c(NA, 60))
-  expect_message(y <- wtf_fill_metadata(x, obs_length_default = 2),
-                 regexp = "Replacing 1 empty Obs_length")
-  expect_identical(dim(x), dim(y))
-  expect_identical(y$Obs_length, c(2, 60))
-})
-
 test_that("wtf_metadata_match works", {
 
   d_t <- c("2024-01-01 13:00:05", "2024-01-01 13:00:10",
@@ -56,6 +21,20 @@ test_that("wtf_metadata_match works", {
                regexp = "is.numeric\\(dead_bands\\)")
   expect_error(wtf_metadata_match(d_t, "2023-12-23", "12:34:00", 1, obs_lengths = "1"),
                regexp = "is.numeric\\(obs_lengths\\)")
+
+  # Warn on missing data
+  s_d <- c("2024-01-01", "2024-01-01")
+  s_t <- c("13:00:00", "13:05:00")
+  suppressMessages({
+    expect_warning(wtf_metadata_match(d_t, c("2024-01-01", NA), s_t, 1:2, 2:3),
+                   regexp = "dates are missing")
+    expect_warning(wtf_metadata_match(d_t, s_d, c(NA, "13:05:00"), 1:2, 2:3),
+                   regexp = "times are missing")
+    expect_warning(wtf_metadata_match(d_t, s_d, s_t, c(1, NA), 2:3),
+                   regexp = "dead bands are missing")
+    expect_warning(wtf_metadata_match(d_t, s_d, s_t, 1:2, c(NA, 3)),
+                   regexp = "observation lengths are missing")
+  })
 
   # Overlapping metadata
   s_d <- c("2024-01-01", "2024-01-01")
