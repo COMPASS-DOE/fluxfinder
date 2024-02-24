@@ -11,6 +11,7 @@ wtf_compute_fluxes(
   conc_column,
   volume,
   area,
+  dead_band = 0,
   normalize_time = TRUE,
   fit_function = wtf_fit_models,
   ...
@@ -29,6 +30,9 @@ pass NULL to run with no grouping}
 \item{volume}{XXX}
 
 \item{area}{XXX}
+
+\item{dead_band}{Length of dead band, the equilibration period at the
+beginning of the time series during which data are ignore, in seconds (numeric)}
 
 \item{normalize_time}{Normalize the values so that first is zero? Logical}
 

@@ -96,6 +96,8 @@ wtf_normalize_time <- function(time, normalize = TRUE) {
 #' @param conc_column Name of the gas concentration column in \code{data}, character
 #' @param volume XXX
 #' @param area XXX
+#' @param dead_band Length of dead band, the equilibration period at the
+#' beginning of the time series during which data are ignore, in seconds (numeric)
 #' @param normalize_time Normalize the values so that first is zero? Logical
 #' @param fit_function Optional flux-fit function;
 #' default is \code{\link{wtf_fit_models}}
@@ -117,6 +119,7 @@ wtf_compute_fluxes <- function(data,
                                conc_column,
                                volume,
                                area,
+                               dead_band = 0,
                                normalize_time = TRUE,
                                fit_function = wtf_fit_models,
                                ...) {
@@ -136,8 +139,11 @@ wtf_compute_fluxes <- function(data,
   # passing volume and area?
   f <- function(x, ...) {
     x$.norm_time <- wtf_normalize_time(x[,time_column], normalize_time)
+    x <- x[x$.norm_time >= dead_band,] # exclude dead band data
     out <- fit_function(x$.norm_time, x[,conc_column], ...)
     out[time_column] <- mean(x[,time_column])
+    out[paste0(time_column, "_min")] <- min(x[,time_column])
+    out[paste0(time_column, "_max")] <- max(x[,time_column])
     return(out)
   }
 

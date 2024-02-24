@@ -69,9 +69,11 @@ using the `TIMESTAMP` column that `wtf_read_LI7810` helpfully created
 when it read the data file.
 
 ```{r matching, fig.width=8}
-dat$metadat_row <- wtf_metadata_match(dat$TIMESTAMP, 
-                                      metadat$Date, metadat$Start_time,
-                                      metadat$Dead_band, metadat$Obs_length)
+dat$metadat_row <- wtf_metadata_match(
+  data_timestamps = dat$TIMESTAMP,
+  start_dates = metadat$Date,
+  start_times = metadat$Start_time,
+  obs_lengths = metadat$Obs_length + 10) # 10 is expected dead band length
 
 # Based on the row match information, add a "Plot" column to the data
 dat$Plot <- metadat$Plot[dat$metadat_row]
@@ -98,9 +100,11 @@ Here, we'll just change the values programmatically and re-match:
 
 ```{r matching2, fig.width=8}
 metadat$Obs_length[3:5] <- c(30, 45, 45)
-dat$metadat_row <- wtf_metadata_match(dat$TIMESTAMP, 
-                                      metadat$Date, metadat$Start_time,
-                                      metadat$Dead_band, metadat$Obs_length)
+dat$metadat_row <- wtf_metadata_match(
+  data_timestamps = dat$TIMESTAMP,
+  start_dates = metadat$Date,
+  start_times = metadat$Start_time,
+  obs_lengths = metadat$Obs_length + 10)
 dat$Plot <- metadat$Plot[dat$metadat_row]
 
 p %+% dat
@@ -118,7 +122,8 @@ QA/QC information.
 fluxes <- wtf_compute_fluxes(dat,
                            group_column = "Plot", 
                            time_column = "TIMESTAMP", 
-                           conc_column = "CO2")
+                           conc_column = "CO2",
+                           dead_band = 10)
 
 # By default, wtf_compute_fluxes returns a data.frame with one row per
 # grouping variable value (i.e., per measurement). The first column is the
@@ -129,6 +134,9 @@ fluxes <- wtf_compute_fluxes(dat,
 
 # For clarity, print out only a subset of the columns 
 fluxes[c(1:2, 4, 14, 15, 20)]
+
+# The data frame also has columns TIMESTAMP_min and TIMESTAMP_max,
+# giving the entire period over which the flux was computed.
 
 ggplot(fluxes, aes(Plot, slope_estimate, color = adj.r.squared)) +
   geom_point() +

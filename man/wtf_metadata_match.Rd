@@ -4,13 +4,7 @@
 \alias{wtf_metadata_match}
 \title{Match metadata info with a vector of data timestamps}
 \usage{
-wtf_metadata_match(
-  data_timestamps,
-  start_dates,
-  start_times,
-  dead_bands,
-  obs_lengths
-)
+wtf_metadata_match(data_timestamps, start_dates, start_times, obs_lengths)
 }
 \arguments{
 \item{data_timestamps}{Data timestamps, either character (YYYY-MM-DD HH:MM:SS) or \code{\link{POSIXct}}}
@@ -19,9 +13,9 @@ wtf_metadata_match(
 
 \item{start_times}{Metadata measurement start time entries, either character (HH:MM:SS) or \code{\link[lubridate]{period}}}
 
-\item{dead_bands}{Dead band lengths in seconds, numeric; must be same length as \code{start_dates}}
-
-\item{obs_lengths}{Observation lengths in seconds, numeric; must be same length as \code{start_dates}}
+\item{obs_lengths}{Observation lengths in seconds, numeric; must be same
+length as \code{start_dates}. This should include both the intended
+measurement period as well as any dead band time at the beginning}
 }
 \value{
 A numeric vector equal in length to \code{data_timestamps}, with
@@ -40,9 +34,8 @@ d_t <- c("2024-01-01 13:00:05", "2024-01-01 13:00:10",
 # Metadata start dates and times: two measurements, starting 5 minutes apart
 s_d <- c("2024-01-01", "2024-01-01")
 s_t <- c("13:00:00", "13:05:00")
-db <- c(1, 1) # Dead bands
 ol <- c(60, 60) # Observation lengths
-wtf_metadata_match(d_t, s_d, s_t, db, ol)
+wtf_metadata_match(d_t, s_d, s_t, ol)
 # Returns {1, 1, 2, NA} indicating that the first and second data timestamps
 # correspond to metadata entry 1, the third to entry 2, and the fourth
 # has no match
@@ -50,6 +43,6 @@ wtf_metadata_match(d_t, s_d, s_t, db, ol)
 # This generates an error because of overlapping timestamps:
 \dontrun{
 s_t <- c("13:00:00", "13:01:00")
-wtf_metadata_match(d_t, s_d, s_t, db, ol)
+wtf_metadata_match(d_t, s_d, s_t, ol)
 }
 }
