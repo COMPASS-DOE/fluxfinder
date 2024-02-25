@@ -11,7 +11,7 @@ wtf_ppm_to_umol(ppm, volume, temp = 20, atm = 101325)
 
 \item{volume}{System volume (chamber + tubing + analyzer, m3), numeric}
 
-\item{temp}{Optional ambient temperature (degrees C), numeric}
+\item{temp}{Optional chamber temperature (degrees C), numeric}
 
 \item{atm}{Optional atmospheric pressure (Pa), numeric}
 }
@@ -23,13 +23,6 @@ Convert ppm to micromoles using Ideal Gas Law
 }
 \note{
 The defaults are NIST normal temperature and pressure.
-}
-\examples{
-# 0.18 is the slope (ppm CO2/s) of the first observation in the
-# TG10-01087 example data; see wtf_fit_models() examples
-wtf_ppm_to_umol(0.18, volume = 0.1)
-wtf_ppm_to_umol(0.18, volume = 0.1, temp = 5) # cold day
-wtf_ppm_to_umol(0.18, volume = 0.1, temp = 5, atm = 75000) # in the Andes
 }
 \references{
 Steduto et al.:
