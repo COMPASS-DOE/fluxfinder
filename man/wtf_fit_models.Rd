@@ -4,12 +4,17 @@
 \alias{wtf_fit_models}
 \title{Fit various models to gas concentration data}
 \usage{
-wtf_fit_models(time, conc)
+wtf_fit_models(time, conc, area, volume)
 }
 \arguments{
 \item{time}{Relative time of observation (typically seconds), numeric}
 
-\item{conc}{Greenhouse gas concentration, numeric}
+\item{conc}{Greenhouse gas concentration (typically ppm or ppb), numeric}
+
+\item{area}{Area covered by the measurement chamber (typically cm2), numeric}
+
+\item{volume}{Volume of the system
+(chamber + tubing + analyzer, typically cm3), numeric}
 }
 \value{
 A wide-form \code{\link{data.frame}} with fit statistics for linear,

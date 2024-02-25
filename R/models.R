@@ -3,7 +3,10 @@
 #' Fit various models to gas concentration data
 #'
 #' @param time Relative time of observation (typically seconds), numeric
-#' @param conc Greenhouse gas concentration, numeric
+#' @param conc Greenhouse gas concentration (typically ppm or ppb), numeric
+#' @param area Area covered by the measurement chamber (typically cm2), numeric
+#' @param volume Volume of the system
+#' (chamber + tubing + analyzer, typically cm3), numeric
 #' @return A wide-form \code{\link{data.frame}} with fit statistics for linear,
 #' robust linear, and polynomial models. By default, extensive details are
 #' provided only for the linear fi; for robust linear and polynomial, only
@@ -24,7 +27,7 @@
 #' dat$SECONDS <- dat$SECONDS - min(dat$SECONDS) # normalize time to start at 0
 #' plot(dat$SECONDS, dat$CO2)
 #' wtf_fit_models(dat$SECONDS, dat$CO2)
-wtf_fit_models <- function(time, conc) {
+wtf_fit_models <- function(time, conc, area, volume) {
   # Basic linear model
   try(mod <- lm(conc ~ time))
   if(!exists("mod")) {
@@ -156,4 +159,34 @@ wtf_compute_fluxes <- function(data,
   row.names(z) <- NULL
   onleft <- c(group_column, time_column)
   return(z[c(onleft, setdiff(names(z), onleft))])
+}
+
+
+#' Convert ppm to micromoles using Ideal Gas Law
+#'
+#' @param ppm Gas concentration (ppmv), numeric
+#' @param volume System volume (chamber + tubing + analyzer, m3), numeric
+#' @param temp Optional ambient temperature (degrees C), numeric
+#' @param atm Optional atmospheric pressure (Pa), numeric
+#' @return The value(s) in micromoles.
+#' @export
+#' @references Steduto, P., Çetinkökü, Ö., Albrizio, R., and Kanber, R.:
+#' Automated closed-system canopy-chamber for continuous field-crop monitoring
+#' of CO2 and H2O fluxes, Agric. For. Meteorol., 111:171–186, 2002.
+#' \url{http://dx.doi.org/10.1016/S0168-1923(02)00023-0}
+#' @note The defaults are NIST normal temperature and pressure.
+#' @examples
+#' # 0.18 is the slope (ppm CO2/s) of the TG10-01087 example data
+#' wtf_ppm_to_umol(0.18, volume = 0.1)
+#' wtf_ppm_to_umol(0.18, volume = 0.1, temp = 5) # cold day
+#' wtf_ppm_to_umol(0.18, volume = 0.1, temp = 5, atm = 75000) # in the Andes
+wtf_ppm_to_umol <- function(ppm, volume, temp = 20, atm = 101325) {
+
+  # Gas constant, from https://en.wikipedia.org/wiki/Gas_constant
+  R <- 8.31446261815324	 # m3 Pa K−1 mol−1
+  wtf_message("Using R = ", R, " m3 Pa K−1 mol−1")
+  TEMP_K <- temp + 273.15
+
+  # Use ideal gas law to calculate micromoles: n = pV/RT
+  return(ppm * atm * volume / (R * TEMP_K))
 }
