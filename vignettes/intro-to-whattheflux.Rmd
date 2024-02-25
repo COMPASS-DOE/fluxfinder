@@ -112,6 +112,26 @@ p %+% dat
 
 That looks better!
 
+## Unit conversion
+
+We'd like our final units to be in µmol/m2/s, and so need to do some unit
+conversion. (This can happen either before or after flux computation, below.)
+The package provides `wtf_ppm_to_umol()` that does this conversion using the
+[Ideal Gas Law](https://en.wikipedia.org/wiki/Ideal_gas_law).
+
+```{r units}
+dat$CO2_umol <- wtf_ppm_to_umol(dat$CO2, 
+                            volume = 0.1, # m3
+                            temp = 24)    # degrees C
+
+# Note that because we didn't provide the 'atm' parameter, 
+# wtf_ppm_to_umol assumed standard pressure.
+
+# Also normalize by ground area (0.16 m2)
+dat$CO2_umol_m2 <- dat$CO2_umol / 0.16
+```
+
+
 ## Compute fluxes
 
 The `wtf_compute_fluxes` function provides a general-purpose tool for
@@ -122,7 +142,7 @@ QA/QC information.
 fluxes <- wtf_compute_fluxes(dat,
                            group_column = "Plot", 
                            time_column = "TIMESTAMP", 
-                           conc_column = "CO2",
+                           conc_column = "CO2_umol_m2",
                            dead_band = 10)
 
 # By default, wtf_compute_fluxes returns a data.frame with one row per
@@ -141,7 +161,8 @@ fluxes[c(1:2, 4, 14, 15, 20)]
 ggplot(fluxes, aes(Plot, slope_estimate, color = adj.r.squared)) +
   geom_point() +
   geom_linerange(aes(ymin = slope_estimate - slope_std.error,
-                     ymax = slope_estimate + slope_std.error))
+                     ymax = slope_estimate + slope_std.error)) +
+  ylab("CO2 flux (µmol/m2/s)")
 ```
 
 We might want to check whether the robust-linear slope diverges from the

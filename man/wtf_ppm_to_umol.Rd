@@ -2,9 +2,9 @@
 % Please edit documentation in R/models.R
 \name{wtf_ppm_to_umol}
 \alias{wtf_ppm_to_umol}
-\title{Convert ppm to micromoles using Ideal Gas Law}
+\title{Convert ppm to micromoles using the Ideal Gas Law}
 \usage{
-wtf_ppm_to_umol(ppm, volume, temp = 20, atm = 101325)
+wtf_ppm_to_umol(ppm, volume, temp, atm)
 }
 \arguments{
 \item{ppm}{Gas concentration (ppmv), numeric}
@@ -19,10 +19,11 @@ wtf_ppm_to_umol(ppm, volume, temp = 20, atm = 101325)
 The value(s) in micromoles.
 }
 \description{
-Convert ppm to micromoles using Ideal Gas Law
+Convert ppm to micromoles using the Ideal Gas Law
 }
 \note{
-The defaults are NIST normal temperature and pressure.
+If \code{temp} and/or \code{atm} are not provided, the defaults
+are NIST normal temperature and pressure.
 }
 \references{
 Steduto et al.:
