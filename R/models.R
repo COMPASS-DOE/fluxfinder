@@ -170,13 +170,14 @@ wtf_compute_fluxes <- function(data,
 #' @param atm Optional atmospheric pressure (Pa), numeric
 #' @return The value(s) in micromoles.
 #' @export
-#' @references Steduto, P., Çetinkökü, Ö., Albrizio, R., and Kanber, R.:
+#' @references Steduto et al.:
 #' Automated closed-system canopy-chamber for continuous field-crop monitoring
-#' of CO2 and H2O fluxes, Agric. For. Meteorol., 111:171–186, 2002.
+#' of CO2 and H2O fluxes, Agric. For. Meteorol., 111:171-186, 2002.
 #' \url{http://dx.doi.org/10.1016/S0168-1923(02)00023-0}
 #' @note The defaults are NIST normal temperature and pressure.
 #' @examples
-#' # 0.18 is the slope (ppm CO2/s) of the TG10-01087 example data
+#' # 0.18 is the slope (ppm CO2/s) of the first observation in the
+#' # TG10-01087 example data; see wtf_fit_models() examples
 #' wtf_ppm_to_umol(0.18, volume = 0.1)
 #' wtf_ppm_to_umol(0.18, volume = 0.1, temp = 5) # cold day
 #' wtf_ppm_to_umol(0.18, volume = 0.1, temp = 5, atm = 75000) # in the Andes
