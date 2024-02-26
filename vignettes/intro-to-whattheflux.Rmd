@@ -27,7 +27,12 @@ library(whattheflux)
 # Data from a LI-7810
 f <- system.file("extdata/TG10-01087.data", package = "whattheflux")
 dat <- wtf_read_LI7810(f)
-dat[1:6, 1:9] # full raw dataset has 500+ rows and 25 columns
+
+# Note that the whattheflux read functions
+# Set "options(whattheflux.quiet = TRUE)" to suppress messages like these
+
+# Look at a subset of the data; the full data frame has 500+ rows and 25 columns
+dat[1:6, 1:9]
 ```
 
 The data frame returned by `wtf_read_LI7810` is all data from the raw
@@ -54,8 +59,6 @@ how long they lasted, plot/treatment/collar information, etc.
 md <- system.file("extdata/TG10-01087-metadata.csv", package = "whattheflux")
 metadat <- read.csv(md)
 
-# Note: set "options(whattheflux.quiet = TRUE)" to suppress messages like these
-
 print(metadat)
 ```
 
@@ -74,6 +77,8 @@ dat$metadat_row <- wtf_metadata_match(
   start_dates = metadat$Date,
   start_times = metadat$Start_time,
   obs_lengths = metadat$Obs_length + 10) # 10 is expected dead band length
+
+# Note that wtf_metadata_match() warns us that one metadata row didn't match any data
 
 # Based on the row match information, add a "Plot" column to the data
 dat$Plot <- metadat$Plot[dat$metadat_row]
@@ -127,7 +132,7 @@ dat$CO2_umol <- wtf_ppm_to_umol(dat$CO2,
 # Note that because we didn't provide the 'atm' parameter, 
 # wtf_ppm_to_umol assumed standard pressure.
 
-# Also normalize by ground area (0.16 m2)
+# Also normalize by ground area (0.16 m2 in this example)
 dat$CO2_umol_m2 <- dat$CO2_umol / 0.16
 ```
 
@@ -156,7 +161,7 @@ fluxes <- wtf_compute_fluxes(dat,
 fluxes[c(1:2, 4, 14, 15, 20)]
 
 # The data frame also has columns TIMESTAMP_min and TIMESTAMP_max,
-# giving the entire period over which the flux was computed.
+# specifying the entire period over which each flux was computed.
 
 ggplot(fluxes, aes(Plot, slope_estimate, color = adj.r.squared)) +
   geom_point() +
@@ -181,3 +186,11 @@ The plot C (green) data have more scatter, and thus lower R<sup>2</sup> values a
 higher uncertainty on the computed flux,
 but there's no evidence of nonlinearity or outlier problems.
 
+## Conclusion
+
+This vignette covered `whattheflux` basics: loading data and metadata,
+matching the two, performing unit conversion, computing fluxes, and some
+basic QA/QC. The test data we worked above could be fit well by linear model,
+but for many reasons this might not always be true; see the vignette on
+[integrating with the gasfluxes package](integrating-gasfluxes.html) for
+guidance on using more sophisticated model-fitting routines.

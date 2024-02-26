@@ -31,7 +31,7 @@ test_that("wtf_compute_fluxes works", {
   ff <- function(a, b) data.frame(x = 1) # dummy fit function
 
   # Normalize times
-  out <- wtf_compute_fluxes(x, "Plot", "time", "conc", 1, 1,
+  out <- wtf_compute_fluxes(x, "Plot", "time", "conc",
                             fit_function = ff, normalize_time = TRUE)
   expect_s3_class(out, "data.frame")
   expect_identical(out$Plot, plots) # one row per plot
@@ -40,7 +40,7 @@ test_that("wtf_compute_fluxes works", {
   expect_identical(out$time_max, rep(max(times), nrow(out))) # max of raw times
 
   # Raw times
-  out <- wtf_compute_fluxes(x, "Plot", "time", "conc", 1, 1,
+  out <- wtf_compute_fluxes(x, "Plot", "time", "conc",
                             fit_function = ff, normalize_time = FALSE)
   expect_identical(out$Plot, plots) # one row per plot
   expect_identical(out$time, rep(mean(times), nrow(out))) # mean of raw times
@@ -48,7 +48,7 @@ test_that("wtf_compute_fluxes works", {
   expect_identical(out$time_max, rep(max(times), nrow(out))) # max of raw times
 
   # Passing NULL for the group column should return a single row
-  out <- wtf_compute_fluxes(x, NULL, "time", "conc", 1, 1,
+  out <- wtf_compute_fluxes(x, NULL, "time", "conc",
                             fit_function = ff, normalize_time = TRUE)
   expect_s3_class(out, "data.frame")
   expect_identical(nrow(out), 1L) # one row

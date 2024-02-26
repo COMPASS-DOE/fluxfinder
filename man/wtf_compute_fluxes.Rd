@@ -9,8 +9,6 @@ wtf_compute_fluxes(
   group_column,
   time_column,
   conc_column,
-  volume,
-  area,
   dead_band = 0,
   normalize_time = TRUE,
   fit_function = wtf_fit_models,
@@ -26,10 +24,6 @@ pass NULL to run with no grouping}
 \item{time_column}{Name of the time column in \code{data}, character}
 
 \item{conc_column}{Name of the gas concentration column in \code{data}, character}
-
-\item{volume}{XXX}
-
-\item{area}{XXX}
 
 \item{dead_band}{Length of dead band, the equilibration period at the
 beginning of the time series during which data are ignore, in seconds (numeric)}
