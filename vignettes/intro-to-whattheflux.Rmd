@@ -28,8 +28,8 @@ library(whattheflux)
 f <- system.file("extdata/TG10-01087.data", package = "whattheflux")
 dat <- wtf_read_LI7810(f)
 
-# Note that the whattheflux read functions
-# Set "options(whattheflux.quiet = TRUE)" to suppress messages like these
+# Note that the whattheflux read functions print some info after reading
+# Set "options(whattheflux.quiet = TRUE)" to suppress such messages
 
 # Look at a subset of the data; the full data frame has 500+ rows and 25 columns
 dat[1:6, 1:9]
