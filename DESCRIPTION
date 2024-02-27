@@ -20,6 +20,7 @@ Imports:
     lubridate (>= 1.0),
     MASS (>= 7.0)
 Suggests: 
+    gasfluxes,
     ggplot2,
     knitr,
     rmarkdown,

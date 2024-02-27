@@ -14,6 +14,97 @@ knitr::opts_chunk$set(
 )
 ```
 
+As noted in the [introductory vignette](intro-to-whattheflux.html), there are
+many reasons why greenhouse gas concentration observations might not be
+well fit by a linear model: diffusion effects, saturation, mixing problems, 
+etc. 
+
+The `whattheflux` package provides extensive outputs based on linear
+model fits, and a few QA/QC indicators based on a polynomial model, but there
+are cases where we might want to take advantage of more sophisticated
+model-fitting routines.
+
+## Some problematic sample data
+
 ```{r setup}
 library(whattheflux)
+
+# Load the data
+# Data from a LI-7810
+f <- system.file("extdata/TG10-01087-curvature.data", package = "whattheflux")
+dat <- wtf_read_LI7810(f)
+
+# Fit a linear flux and QA/QC it
+flux <- wtf_compute_fluxes(dat, group_column = NULL, time_column = "TIMESTAMP", conc_column = "CO2")
+print(flux$slope_estimate)
+print(flux$adj.r.squared)
+print(flux$r.squared_poly)
 ```
+
+There's a fairly large jump from the R<sup>2</sup> of the linear
+model (0.93) to that of a polynomial (0.99+). Visualizing the data:
+
+```{r qaqc-plot, fig.width=6}
+library(ggplot2)
+dat$SECONDS <- dat$SECONDS-min(dat$SECONDS)
+ggplot(dat, aes(SECONDS, CO2)) + geom_point() + geom_smooth(method = "lm")
+```
+
+There's definitely a problem! Depending on what we think is happening here,
+one option would be to change the observation length so that the flux is
+computed based on only the first ~75 seconds, which looks linear.
+
+A second option would be fit more sophisticated model(s).
+
+## Using the gasfluxes package
+
+The [gasfluxes package](https://git-dmz.thuenen.de/fuss/gasfluxes) also 
+provides routines to calculate greenhouse gas fluxes from chamber
+measurements, and includes code to fit the 
+[HMR](http://dx.doi.org/10.1111/j.1365-2389.2010.01291.x) model as well as 
+several model-selection routines.
+
+```{r}
+library(gasfluxes)
+
+# Add some columns that gasfluxes expects
+dat$ID <- "test"
+dat$V <- 0.1
+dat$A <- 0.16
+
+gasfluxes(dat, .times = "SECONDS", .C = "CO2", plot = FALSE)
+```
+
+`gasfluxes` will compute on multiple groups (measurements) via its `.id`
+parameter, but we can also use use `whattheflux::wtf_compute_fluxes()` to
+handle the grouping and let it call `gasfluxes`:
+
+```{r}
+# Define a small wrapper function to put things into the format
+# that gasfluxes expects
+f <- function(time, conc) {
+  d <- data.frame(time = time, C = conc, ID = 1, A = 1, V = 1)
+  gasfluxes(d, plot = FALSE)
+}
+
+wtf_compute_fluxes(dat, NULL, "SECONDS", "CO2", fit_function = f)
+```
+
+## Conclusion
+
+This vignette covered how to integrate `gasfluxes` with `whattheflux`, if
+you want to take advantage of the former package's HMR or NDFE routines.
+More information on these models can be found in:
+
+* Hüppi, R., Felber, R., Krauss, M., Six, J., Leifeld, J., and Fuß, R.: 
+Restricting the nonlinearity parameter in soil greenhouse gas flux calculation 
+for more reliable flux estimates, PLoS One, 13, e0200876, 2018.
+http://dx.doi.org/10.1371/journal.pone.0200876
+* Leiber-Sauheitl, K., Fuß, R., Voigt, C., and Freibauer, A.: 
+High CO2 fluxes from grassland on histic Gleysol along soil carbon and 
+drainage gradients, Biogeosciences, 11, 749–761, 2014.
+http://dx.doi.org/10.5194/bg-11-749-2014
+* Pedersen, A. R., Petersen, S. O., and Schelde, K.: A comprehensive approach
+to soil-atmosphere trace-gas flux estimation with static chambers, 
+Eur. J. Soil Sci., 61, 888–902, 2010.
+http://dx.doi.org/10.1111/j.1365-2389.2010.01291.x
