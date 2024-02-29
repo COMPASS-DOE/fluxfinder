@@ -61,5 +61,5 @@ test_that("wtf_metadata_match works", {
   s_d <- c("2024-01-01", "2024-01-01", "2024-01-10")
   s_t <- c("13:00:00", "13:05:00", "13:10:00")
   expect_message(wtf_metadata_match(d_t, s_d, s_t, c(60, 60, 60)),
-                 regexp = "no timestamp matches: 3")
+                 regexp = "1 entry had no timestamp matches")
 })
