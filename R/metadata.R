@@ -40,10 +40,6 @@ wtf_metadata_match <- function(data_timestamps,
                                start_dates, start_times,
                                obs_lengths) {
 
-  wtf_message("class(data_timestamps) = ", class(data_timestamps))
-  wtf_message("class(start_dates) = ", class(start_dates))
-  wtf_message("class(start_times) = ", class(start_times))
-
   # Input checks and convert to dates/timestamps if needed
   stopifnot(length(start_dates) == length(start_times))
   stopifnot(length(start_dates) == length(obs_lengths))
@@ -76,8 +72,6 @@ wtf_metadata_match <- function(data_timestamps,
   start_timestamps <- start_dates + start_times
   stopifnot(is.POSIXct((start_timestamps))) # should always be true!
   stop_timestamps <- start_timestamps + obs_lengths
-  wtf_message("start_timestamps = ", paste(start_timestamps, collapse = ","))
-  wtf_message("stop_timestamps = ", paste(stop_timestamps, collapse = ","))
 
   # Metadata records shouldn't overlap; we assume that metadata is from a
   # single machine that generated the data
