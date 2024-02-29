@@ -86,14 +86,16 @@ wtf_metadata_match <- function(data_timestamps,
   matches <- rep(NA_real_, length(data_timestamps))
   entries <- seq_along(start_timestamps)
   for(i in entries) {
-    mtch <- data_timestamps >= start_timestamps[i] & data_timestamps <= stop_timestamps[i]
+    mtch <- data_timestamps >= start_timestamps[i] & data_timestamps < stop_timestamps[i]
     matches[mtch] <- i
   }
 
   # Metadata rows with zero matches seems unexpected
   no_matches <- base::setdiff(entries, unique(matches, na.omit(matches)))
-  if(length(no_matches)) {
-    wtf_message("Entries with no timestamp matches: ", paste(no_matches, collapse = ", "))
+  lnm <- length(no_matches)
+  if(lnm) {
+    wtf_message(lnm, ifelse(lnm == 1, " entry", " entries"),
+                " had no timestamp matches!")
   }
 
   return(matches)
