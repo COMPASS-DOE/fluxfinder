@@ -4,12 +4,14 @@
 \alias{qaqc}
 \title{Generate a QA/QC document}
 \usage{
-qaqc(output_file = "qaqc.html", output_dir = getwd())
+qaqc(output_file = "qaqc.html", output_dir = getwd(), open_output = TRUE)
 }
 \arguments{
 \item{output_file}{Name of the output file}
 
 \item{output_dir}{Name of the output directory; default is current working directory}
+
+\item{open_output}{Automatically open the output HTML file?}
 }
 \value{
 The path of the output file
@@ -18,6 +20,6 @@ The path of the output file
 Generate a QA/QC document
 }
 \examples{
-x <- qaqc()
+x <- qaqc(open_output = FALSE)
 file.remove(x) # clean up
 }
