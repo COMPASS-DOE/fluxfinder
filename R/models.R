@@ -77,7 +77,7 @@ wtf_fit_models <- function(time, conc, area, volume) {
 #' @param normalize Normalize the values so that first is zero? Logical
 #' @return A numeric vector of normalized values (if \code{normalize_time} is
 #' TRUE) or the original vector if not.
-#' @export
+#' @keywords internal
 #' @examples
 #' wtf_normalize_time(2:4) # returns 0:2
 #' wtf_normalize_time(2:4, FALSE) # returns 2:4
