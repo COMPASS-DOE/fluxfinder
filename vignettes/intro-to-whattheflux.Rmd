@@ -186,6 +186,9 @@ The plot C (green) data have more scatter, and thus lower R<sup>2</sup> values a
 higher uncertainty on the computed flux,
 but there's no evidence of nonlinearity or outlier problems.
 
+These plots are included in the QA/QC Rmarkdown included with `whattheflux`;
+see the [corresponding vignette](using-the-qaqc-rmarkdown.html).
+
 ## Conclusion
 
 This vignette covered `whattheflux` basics: loading data and metadata,

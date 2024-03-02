@@ -1,0 +1,22 @@
+---
+title: "Using the QA/QC Rmarkdown"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using the QA/QC Rmarkdown}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(whattheflux)
+```
+
+Basically we're just going to have screenshots, with explanations, here?
+
