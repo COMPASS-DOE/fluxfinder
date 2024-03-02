@@ -1,6 +1,5 @@
 ---
-title: "QA/QC"
-author: "Ben Bond-Lamberty"
+title: "whattheflux QA/QC"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -35,12 +34,19 @@ fd <- readRDS(params$flux_data)
 
 Rows of flux data: `r nrow(fd)`
 
+## Flux distribution
+
+```{r, flux-distribution}
+p <- ggplot(fd, aes(slope_estimate)) +
+  geom_histogram(bins = 30)
+print(p)
+```
+
 ## Linear model versus robust linear model
 
 Fluxes that depart from the 1:1 may have influential outliers in the underlying data.
 
-```{r}
-
+```{r, linear-versus-robust}
 fd <- add_labels(fd, "slope_estimate", "slope_estimate_robust", level = 0.75)
 p <- ggplot(fd, aes(slope_estimate, slope_estimate_robust, label = label)) +
   geom_point() +
@@ -57,7 +63,7 @@ print(p)
 
 Fluxes that depart from the 1:1 may have nonlinearity issues in the underlying data.
 
-```{r}
+```{r, linear-versus-polynomial}
 fd <- add_labels(fd, "adj.r.squared", "r.squared_poly", level = 0.75)
 p <- ggplot(fd, aes(adj.r.squared, r.squared_poly, label = label)) +
   geom_point() +
