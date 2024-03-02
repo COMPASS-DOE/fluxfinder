@@ -15,15 +15,20 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 theme_set(theme_bw())
 
-# Utility function: add labels to the lowest X%
-add_labels <- function(x, col1, col2, level, gc = params$group_column) {
+# Utility function: add labels to divergences greater than min_pct%
+add_labels <- function(x, col1, col2, gc = params$group_column) {
+  
+  MAX_DISPLAY <- 8
+  # Compute relative differences, rank, and label MAX_DISPLAY highest
   reldiff <- abs((x[[col1]] - x[[col2]]) / x[[col1]])
-  outthere <- reldiff > quantile(reldiff, probs = level)
-  x$label <- NA
+  rd_rank <- rank(reldiff)
+  show_label <- rd_rank > (nrow(x) - MAX_DISPLAY)
+
+  x$.label <- NA
   if(is.null(gc)) {
-    x$label[outthere] <- seq_len(nrow(x))[outthere]
+    x$.label[show_label] <- seq_len(nrow(x))[show_label]
   } else {
-    x$label[outthere] <- x[[gc]][outthere]
+    x$.label[show_label] <- x[[gc]][show_label]
   }
   return(x)
 }
@@ -47,14 +52,12 @@ print(p)
 Fluxes that depart from the 1:1 may have influential outliers in the underlying data.
 
 ```{r, linear-versus-robust}
-fd <- add_labels(fd, "slope_estimate", "slope_estimate_robust", level = 0.75)
-p <- ggplot(fd, aes(slope_estimate, slope_estimate_robust, label = label)) +
+fd <- add_labels(fd, "slope_estimate", "slope_estimate_robust")
+p <- ggplot(fd, aes(slope_estimate, slope_estimate_robust, label = .label)) +
   geom_point() +
   geom_text(size = 5, nudge_y = 0.1, na.rm = TRUE) +
   geom_abline() + 
   theme(legend.position = "none")
-
-#if(!is.null(group_column)) p <- p + aes(color = .data[[group_column]])
 
 print(p)
 ```
@@ -64,14 +67,12 @@ print(p)
 Fluxes that depart from the 1:1 may have nonlinearity issues in the underlying data.
 
 ```{r, linear-versus-polynomial}
-fd <- add_labels(fd, "adj.r.squared", "r.squared_poly", level = 0.75)
-p <- ggplot(fd, aes(adj.r.squared, r.squared_poly, label = label)) +
+fd <- add_labels(fd, "adj.r.squared", "r.squared_poly")
+p <- ggplot(fd, aes(adj.r.squared, r.squared_poly, label = .label)) +
   geom_point() +
   geom_text(size = 5, nudge_y = 0.01, na.rm = TRUE) +
   geom_abline() + 
   theme(legend.position = "none")
-
-#if(!is.null(group_column)) p <- p + aes(color = .data[[group_column]])
 
 print(p)
 ```

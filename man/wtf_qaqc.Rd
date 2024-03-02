@@ -4,13 +4,7 @@
 \alias{wtf_qaqc}
 \title{Generate a QA/QC document}
 \usage{
-wtf_qaqc(
-  flux_data,
-  group_column,
-  output_file = "qaqc.html",
-  output_dir = getwd(),
-  open_output = TRUE
-)
+wtf_qaqc(flux_data, group_column, open_output = TRUE, ...)
 }
 \arguments{
 \item{flux_data}{A data frame from \code{\link{wtf_compute_fluxes}} or similar}
@@ -18,11 +12,9 @@ wtf_qaqc(
 \item{group_column}{Name of the grouping label column in \code{flux_data},
 character; pass NULL to run with no grouping}
 
-\item{output_file}{Name of the output file}
-
-\item{output_dir}{Name of the output directory; default is current working directory}
-
 \item{open_output}{Automatically open the output HTML file?}
+
+\item{...}{Other parameters passed on to \code{\link[rmarkdown]{render}}}
 }
 \value{
 The path of the output file
@@ -32,7 +24,7 @@ Generate a QA/QC document
 }
 \examples{
 # Toy data
-cars$Plot <- c("A", "B")
+cars$Plot <- LETTERS[1:5]
 fd <- wtf_compute_fluxes(cars, "Plot", "speed", "dist")
 x <- wtf_qaqc(fd, group_column = "Plot")
 file.remove(x) # clean up
