@@ -78,9 +78,6 @@ wtf_fit_models <- function(time, conc, area, volume) {
 #' @return A numeric vector of normalized values (if \code{normalize_time} is
 #' TRUE) or the original vector if not.
 #' @keywords internal
-#' @examples
-#' wtf_normalize_time(2:4) # returns 0:2
-#' wtf_normalize_time(2:4, FALSE) # returns 2:4
 wtf_normalize_time <- function(time, normalize = TRUE) {
   if(normalize) {
     as.numeric(time) - as.numeric(min(time, na.rm = TRUE))
