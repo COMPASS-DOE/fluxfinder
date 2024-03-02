@@ -18,7 +18,4 @@ TRUE) or the original vector if not.
 \description{
 Normalize a vector of times
 }
-\examples{
-wtf_normalize_time(2:4) # returns 0:2
-wtf_normalize_time(2:4, FALSE) # returns 2:4
-}
+\keyword{internal}

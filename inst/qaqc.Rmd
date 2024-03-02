@@ -1,0 +1,77 @@
+---
+title: "whattheflux QA/QC"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    code_folding: hide
+params:
+  flux_data: ""
+  group_column: NULL
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+theme_set(theme_bw())
+
+# Utility function: add labels to the lowest X%
+add_labels <- function(x, col1, col2, level, gc = params$group_column) {
+  reldiff <- abs((x[[col1]] - x[[col2]]) / x[[col1]])
+  outthere <- reldiff > quantile(reldiff, probs = level)
+  x$label <- NA
+  if(is.null(gc)) {
+    x$label[outthere] <- seq_len(nrow(x))[outthere]
+  } else {
+    x$label[outthere] <- x[[gc]][outthere]
+  }
+  return(x)
+}
+
+# Read the flux data
+fd <- readRDS(params$flux_data)
+```
+
+Rows of flux data: `r nrow(fd)`
+
+## Flux distribution
+
+```{r, flux-distribution}
+p <- ggplot(fd, aes(slope_estimate)) +
+  geom_histogram(bins = 30)
+print(p)
+```
+
+## Linear model versus robust linear model
+
+Fluxes that depart from the 1:1 may have influential outliers in the underlying data.
+
+```{r, linear-versus-robust}
+fd <- add_labels(fd, "slope_estimate", "slope_estimate_robust", level = 0.75)
+p <- ggplot(fd, aes(slope_estimate, slope_estimate_robust, label = label)) +
+  geom_point() +
+  geom_text(size = 5, nudge_y = 0.1, na.rm = TRUE) +
+  geom_abline() + 
+  theme(legend.position = "none")
+
+#if(!is.null(group_column)) p <- p + aes(color = .data[[group_column]])
+
+print(p)
+```
+
+## Linear model versus polynomial model
+
+Fluxes that depart from the 1:1 may have nonlinearity issues in the underlying data.
+
+```{r, linear-versus-polynomial}
+fd <- add_labels(fd, "adj.r.squared", "r.squared_poly", level = 0.75)
+p <- ggplot(fd, aes(adj.r.squared, r.squared_poly, label = label)) +
+  geom_point() +
+  geom_text(size = 5, nudge_y = 0.01, na.rm = TRUE) +
+  geom_abline() + 
+  theme(legend.position = "none")
+
+#if(!is.null(group_column)) p <- p + aes(color = .data[[group_column]])
+
+print(p)
+```
