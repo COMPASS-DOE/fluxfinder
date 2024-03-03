@@ -126,16 +126,44 @@ The package provides `wtf_ppm_to_umol()` that does this conversion using the
 
 ```{r units}
 dat$CO2_umol <- wtf_ppm_to_umol(dat$CO2, 
-                            volume = 0.1, # m3
-                            temp = 24)    # degrees C
+                                volume = 0.1, # m3
+                                temp = 24)    # degrees C
 
-# Note that because we didn't provide the 'atm' parameter, 
+# See the message: because we didn't provide the 'atm' parameter, 
 # wtf_ppm_to_umol assumed standard pressure.
 
 # Also normalize by ground area (0.16 m2 in this example)
 dat$CO2_umol_m2 <- dat$CO2_umol / 0.16
 ```
 
+Note that in the example above we're using a **constant system volume and
+measurement ground area**. If that's not the case, 
+there should be a column in the metadata providing the changing values
+(e.g. giving volume in m<sup>3</sup>) for each measurement. 
+Then after calling `wtf_metadata_match()`, merge the data and metadata and
+pass the appropriate column to `wtf_ppm_to_umol()`. Here's an example:
+
+```{r}
+# Let's say volume varies by measurement; this can happen if the chamber
+# height changes depending on the ground vegetation in each plot
+metadat$Volume <- c(0.1, 0.2, 0.1, 0.1, 0.3, 0.1, 0.1)
+
+# Merge the data and metadata
+dat_changing_vol <- merge(dat, metadat[c("Plot", "Volume")], by = "Plot", all.x = TRUE)
+
+# Unit conversion as above, but using the changing volume information:
+dat_changing_vol$CO2_umol <- wtf_ppm_to_umol(dat_changing_vol$CO2, 
+                                             volume = dat_changing_vol$Volume,
+                                             temp = 24)
+# We still have constant ground area in this example
+dat_changing_vol$CO2_umol_m2 <- dat_changing_vol$CO2_umol / 0.16
+
+# Relative to the previous constant-volume example, our area-normalized
+# amounts (µmol) have now increased for plots B and E because
+# of their larger volumes:
+aggregate(CO2_umol_m2 ~ Plot, data = dat, FUN = mean)
+aggregate(CO2_umol_m2 ~ Plot, data = dat_changing_vol, FUN = mean)
+```
 
 ## Compute fluxes
 
@@ -145,10 +173,10 @@ QA/QC information.
 
 ```{r, fig.width=8}
 fluxes <- wtf_compute_fluxes(dat,
-                           group_column = "Plot", 
-                           time_column = "TIMESTAMP", 
-                           conc_column = "CO2_umol_m2",
-                           dead_band = 10)
+                             group_column = "Plot", 
+                             time_column = "TIMESTAMP", 
+                             conc_column = "CO2_umol_m2",
+                             dead_band = 10)
 
 # By default, wtf_compute_fluxes returns a data.frame with one row per
 # grouping variable value (i.e., per measurement). The first column is the
