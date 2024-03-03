@@ -158,8 +158,8 @@ dat_changing_vol$CO2_umol <- wtf_ppm_to_umol(dat_changing_vol$CO2,
 # We still have constant ground area in this example
 dat_changing_vol$CO2_umol_m2 <- dat_changing_vol$CO2_umol / 0.16
 
-# Relative to the previous constant-volume example, our area-based
-# concentration values have now increased for plots B and E because
+# Relative to the previous constant-volume example, our area-normalized
+# amounts (µmol) have now increased for plots B and E because
 # of their larger volumes:
 aggregate(CO2_umol_m2 ~ Plot, data = dat, FUN = mean)
 aggregate(CO2_umol_m2 ~ Plot, data = dat_changing_vol, FUN = mean)
