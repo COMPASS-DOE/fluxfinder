@@ -137,7 +137,7 @@ wtf_compute_fluxes <- function(data,
     x$.norm_time <- wtf_normalize_time(x[,time_column], normalize_time)
     x <- x[x$.norm_time >= dead_band,] # exclude dead band data
     out <- fit_function(x$.norm_time, x[,conc_column], ...)
-    out[time_column] <- mean(x[,time_column])
+    out[paste0(time_column, "_mean")] <- mean(x[,time_column])
     out[paste0(time_column, "_min")] <- min(x[,time_column])
     out[paste0(time_column, "_max")] <- max(x[,time_column])
     return(out)
@@ -150,7 +150,7 @@ wtf_compute_fluxes <- function(data,
   # Clean up row names, column ordering, etc., and return
   if(!is.null(group_column)) z[group_column] <- names(y)
   row.names(z) <- NULL
-  onleft <- c(group_column, time_column)
+  onleft <- c(group_column, paste0(time_column, "_mean"))
   return(z[c(onleft, setdiff(names(z), onleft))])
 }
 
