@@ -7,6 +7,8 @@ output:
 params:
   flux_data: ""
   group_column: NULL
+  flux_column: "slope_estimate"
+  r2_column: "adj.r.squared"
 ---
 
 ```{r setup, include=FALSE}
@@ -52,8 +54,9 @@ print(p)
 Fluxes that depart from the 1:1 may have influential outliers in the underlying data.
 
 ```{r, linear-versus-robust}
-fd <- add_labels(fd, "slope_estimate", "slope_estimate_robust")
-p <- ggplot(fd, aes(slope_estimate, slope_estimate_robust, label = .label)) +
+fd <- add_labels(fd, params$flux_column, "slope_estimate_robust")
+p <- ggplot(fd, aes(.data[[params$flux_column]], 
+                    slope_estimate_robust, label = .label)) +
   geom_point() +
   geom_text(size = 5, nudge_y = 0.1, na.rm = TRUE) +
   geom_abline() + 
@@ -67,8 +70,8 @@ print(p)
 Fluxes that depart from the 1:1 may have nonlinearity issues in the underlying data.
 
 ```{r, linear-versus-polynomial}
-fd <- add_labels(fd, "adj.r.squared", "r.squared_poly")
-p <- ggplot(fd, aes(adj.r.squared, r.squared_poly, label = .label)) +
+fd <- add_labels(fd, params$r2_column, "r.squared_poly")
+p <- ggplot(fd, aes(.data[[params$r2_column]], r.squared_poly, label = .label)) +
   geom_point() +
   geom_text(size = 5, nudge_y = 0.01, na.rm = TRUE) +
   geom_abline() + 

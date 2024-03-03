@@ -4,13 +4,26 @@
 \alias{wtf_qaqc}
 \title{Generate a QA/QC document}
 \usage{
-wtf_qaqc(flux_data, group_column, open_output = TRUE, ...)
+wtf_qaqc(
+  flux_data,
+  group_column,
+  flux_column = "slope_estimate",
+  r2_column = "adj.r.squared",
+  open_output = TRUE,
+  ...
+)
 }
 \arguments{
 \item{flux_data}{A data frame from \code{\link{wtf_compute_fluxes}} or similar}
 
 \item{group_column}{Name of the grouping label column in \code{flux_data},
 character; pass NULL to run with no grouping}
+
+\item{flux_column}{Name of the column with flux estimates; defaults to
+"slope_estimate", the output of \code{\link{wtf_compute_fluxes}}}
+
+\item{r2_column}{Name of the column with adjusted R2 values; defaults to
+"adj.r.squared", the output of \code{\link{wtf_compute_fluxes}}}
 
 \item{open_output}{Automatically open the output HTML file?}
 
