@@ -9,6 +9,12 @@ wtf_qaqc(
   group_column,
   flux_column = "slope_estimate",
   r2_column = "adj.r.squared",
+  time1_column = "TIMESTAMP_min",
+  time2_column = "TIMESTAMP_max",
+  int_column = "int_estimate",
+  obs_data = NULL,
+  obs_time_column = "TIMESTAMP",
+  obs_conc_column = NULL,
   open_output = TRUE,
   ...
 )
@@ -25,6 +31,19 @@ character; pass NULL to run with no grouping}
 \item{r2_column}{Name of the column with adjusted R2 values; defaults to
 "adj.r.squared", the output of \code{\link{wtf_compute_fluxes}}}
 
+\item{time1_column}{time1_column}
+
+\item{time2_column}{time2_column}
+
+\item{int_column}{int_column}
+
+\item{obs_data}{Observational data, optional; a data.frame of concentration
+data from which the \code{flux_data} were computed}
+
+\item{obs_time_column}{obs_time_column}
+
+\item{obs_conc_column}{obs_conc_column}
+
 \item{open_output}{Automatically open the output HTML file?}
 
 \item{...}{Other parameters passed on to \code{\link[rmarkdown]{render}}}
@@ -38,8 +57,13 @@ Generate a QA/QC document
 \examples{
 # Toy data
 cars$Plot <- LETTERS[1:5]
-fd <- wtf_compute_fluxes(cars, "Plot", "speed", "dist")
+cars$TIMESTAMP <- cars$speed
+fd <- wtf_compute_fluxes(cars, "Plot", "TIMESTAMP", "dist")
 x <- wtf_qaqc(fd, group_column = "Plot")
+file.remove(x) # clean up
+# Pass in observations as well as fluxes for more complete QA/QC
+x <- wtf_qaqc(fd, group_column = "Plot",
+  obs_data = cars, obs_conc_column = "dist")
 file.remove(x) # clean up
 # See the introductory vignette for a fully-worked example with real data
 }

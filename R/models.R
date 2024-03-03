@@ -101,7 +101,8 @@ wtf_normalize_time <- function(time, normalize = TRUE) {
 #' default is \code{\link{wtf_fit_models}}
 #' @param ... Other parameters passed to \code{fit_function}
 #' @return A data.frame with one row per \code{group_column} value. It will
-#' always include the mean value of \code{time_column} for that group, but other
+#' always include the minimum and maximum values of \code{time_column}
+#' for that group, as well as "Gas" (the \code{conc_column}), but other
 #' columns depend on what is returned by the \code{fit_function}.
 #' @export
 #' @examples
@@ -137,7 +138,6 @@ wtf_compute_fluxes <- function(data,
     x$.norm_time <- wtf_normalize_time(x[,time_column], normalize_time)
     x <- x[x$.norm_time >= dead_band,] # exclude dead band data
     out <- fit_function(x$.norm_time, x[,conc_column], ...)
-    out[paste0(time_column, "_mean")] <- mean(x[,time_column])
     out[paste0(time_column, "_min")] <- min(x[,time_column])
     out[paste0(time_column, "_max")] <- max(x[,time_column])
     return(out)
@@ -150,7 +150,9 @@ wtf_compute_fluxes <- function(data,
   # Clean up row names, column ordering, etc., and return
   if(!is.null(group_column)) z[group_column] <- names(y)
   row.names(z) <- NULL
-  onleft <- c(group_column, paste0(time_column, "_mean"))
+  z$Gas <- conc_column
+  onleft <- c(group_column, paste0(time_column, "_min"),
+              paste0(time_column, "_max"), "Gas")
   return(z[c(onleft, setdiff(names(z), onleft))])
 }
 

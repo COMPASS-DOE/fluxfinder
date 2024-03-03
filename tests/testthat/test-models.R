@@ -35,7 +35,6 @@ test_that("wtf_compute_fluxes works", {
                             fit_function = ff, normalize_time = TRUE)
   expect_s3_class(out, "data.frame")
   expect_identical(out$Plot, plots) # one row per plot
-  expect_identical(out$time_mean, rep(mean(times), nrow(out))) # mean of raw times
   expect_identical(out$time_min, rep(min(times), nrow(out))) # min of raw times
   expect_identical(out$time_max, rep(max(times), nrow(out))) # max of raw times
 
@@ -43,7 +42,6 @@ test_that("wtf_compute_fluxes works", {
   out <- wtf_compute_fluxes(x, "Plot", "time", "conc",
                             fit_function = ff, normalize_time = FALSE)
   expect_identical(out$Plot, plots) # one row per plot
-  expect_identical(out$time_mean, rep(mean(times), nrow(out))) # mean of raw times
   expect_identical(out$time_min, rep(min(times), nrow(out))) # min of raw times
   expect_identical(out$time_max, rep(max(times), nrow(out))) # max of raw times
 
@@ -52,7 +50,6 @@ test_that("wtf_compute_fluxes works", {
                             fit_function = ff, normalize_time = TRUE)
   expect_s3_class(out, "data.frame")
   expect_identical(nrow(out), 1L) # one row
-  expect_identical(out$time_mean, rep(mean(times), nrow(out))) # mean of raw times
   expect_identical(out$time_min, rep(min(times), nrow(out))) # min of raw times
   expect_identical(out$time_max, rep(max(times), nrow(out))) # max of raw times
 })

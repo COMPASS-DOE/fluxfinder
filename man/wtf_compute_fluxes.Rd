@@ -37,7 +37,8 @@ default is \code{\link{wtf_fit_models}}}
 }
 \value{
 A data.frame with one row per \code{group_column} value. It will
-always include the mean value of \code{time_column} for that group, but other
+always include the minimum and maximum values of \code{time_column}
+for that group, as well as "Gas" (the \code{conc_column}), but other
 columns depend on what is returned by the \code{fit_function}.
 }
 \description{

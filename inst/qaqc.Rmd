@@ -9,6 +9,12 @@ params:
   group_column: NULL
   flux_column: "slope_estimate"
   r2_column: "adj.r.squared"
+  time1_column: "TIMESTAMP_min"
+  time2_column: "TIMESTAMP_max"
+  int_column: "int_estimate"
+  obs_data: ""
+  obs_time_column: "TIMESTAMP"
+  obs_conc_column: NULL
 ---
 
 ```{r setup, include=FALSE}
@@ -25,7 +31,7 @@ add_labels <- function(x, col1, col2, gc = params$group_column) {
   reldiff <- abs((x[[col1]] - x[[col2]]) / x[[col1]])
   rd_rank <- rank(reldiff)
   show_label <- rd_rank > (nrow(x) - MAX_DISPLAY)
-
+  
   x$.label <- NA
   if(is.null(gc)) {
     x$.label[show_label] <- seq_len(nrow(x))[show_label]
@@ -37,9 +43,19 @@ add_labels <- function(x, col1, col2, gc = params$group_column) {
 
 # Read the flux data
 fd <- readRDS(params$flux_data)
+
+# Read the observations, if provided
+if(params$obs_data != "") {
+  od <- readRDS(params$obs_data)
+} else {
+  od <- NULL
+}
 ```
 
 Rows of flux data: `r nrow(fd)`
+
+Rows of observation data: `r nrow(od)`
+
 
 ## Flux distribution
 
@@ -79,3 +95,37 @@ p <- ggplot(fd, aes(.data[[params$r2_column]], r.squared_poly, label = .label)) 
 
 print(p)
 ```
+
+## Observations versus computed fluxes
+
+```{r obs-and-fluxes, eval=TRUE}
+if(!is.null(od)) {
+  
+  plotdata <- merge(od, fd, by = params$group_column)
+  for(i in unique(plotdata[[group_column]])) {
+    p_dat <- plotdata[plotdata[[group_column]] == i,]
+    # Calculate the points for the model line
+    mod_b <- p_dat[[params$int_column]][1]
+    mod_m <- p_dat[[params$flux_column]][1]
+    mod_x1 <- p_dat[[params$time1_column]][1]
+    mod_x2 <- p_dat[[params$time2_column]][1]
+    mod_y1 <- mod_b + mod_m * mod_x1
+    mod_y2 <- mod_b + mod_m * mod_x2
+    
+    p <- ggplot(p_dat, aes(.data[[params$obs_time_column]], 
+                           .data[[params$obs_conc_column]])) + 
+      geom_point() + 
+      geom_smooth(method = "lm", formula = "y ~ x",
+                  linetype = 2, color = "grey") +
+      annotate("segment", x = mod_x1, y = mod_y1,
+               xend = mod_x2, yend = mod_y2, color = "red") +
+      ggtitle(i)
+    print(p)
+  }
+  # merge fd and od
+  # plot, one by one or entire
+} else {
+  message("No observational data were provided")
+}
+```
+
