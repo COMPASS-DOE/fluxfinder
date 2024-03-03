@@ -33,7 +33,10 @@ wtf_read_LI78x0 <- function(file, model) {
 
   # Read the data, construct TIMESTAMP, add metadata,
   # and remove unneeded LI-COR DATE and TIME columns
-  dat <- read.table(textConnection(dat_raw), na.strings = "nan", header = TRUE)
+  dat <- read.table(textConnection(dat_raw),
+                    na.strings = "nan",
+                    header = TRUE,
+                    stringsAsFactors = FALSE)
   dat$TIMESTAMP <- lubridate::ymd_hms(paste(dat$DATE, dat$TIME), tz = tz)
   dat$TZ <- tz
   dat$SN <- sn
@@ -91,7 +94,9 @@ wtf_read_LGR915 <- function(file, tz = "UTC") {
   dat_raw <- readLines(file)
 
   # A single header line encodes version number, date, and serial number
-  dat <- read.csv(textConnection(dat_raw[-1]), check.names = FALSE)
+  dat <- read.csv(textConnection(dat_raw[-1]),
+                  check.names = FALSE,
+                  stringsAsFactors = FALSE)
   dat$Time <- mdy_hms(dat$Time, tz = tz)
   dat$SN <- trimws(gsub(".*SN:", "", dat_raw[1]))
   dat$MODEL <- "915-0011"

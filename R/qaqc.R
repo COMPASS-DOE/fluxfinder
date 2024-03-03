@@ -47,16 +47,17 @@ wtf_qaqc <- function(flux_data,
                      obs_conc_column = NULL,
                      open_output = TRUE,
                      ...) {
+
   if(!requireNamespace("rmarkdown", quietly = TRUE)) {
     stop("To run this function, please install the rmarkdown package")
   }
-
   if(!is.null(obs_data) & is.null(obs_conc_column)) {
     stop("If obs_data is provided, obs_conc_column must be specified")
   }
 
   # Save the flux data into a temporary file so as to pass the
   # fully-qualified filename as a parameter to our Rmarkdown file
+  f <- system.file("qaqc.Rmd", package = "whattheflux")
   td <- tempdir()
   tf_flux_data <- file.path(td, "flux_data")
   saveRDS(flux_data, tf_flux_data)

@@ -130,4 +130,3 @@ if(!is.null(od)) {
   message("No observational data were provided")
 }
 ```
-
