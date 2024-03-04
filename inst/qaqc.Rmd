@@ -98,6 +98,8 @@ print(p)
 
 ## Observations versus computed fluxes
 
+Fitted flux line is in red.
+
 ```{r obs-and-fluxes, eval=TRUE}
 if(!is.null(od)) {
   
@@ -109,10 +111,11 @@ if(!is.null(od)) {
     mod_m <- p_dat[[params$flux_column]][1]
     mod_x1 <- p_dat[[params$time1_column]][1]
     mod_x2 <- p_dat[[params$time2_column]][1]
-    # The fluxes were (probably) computed on normalized timestamps,
-    # so subtract off x1 to get the correct predicted values
-    mod_y1 <- mod_b + mod_m * (mod_x1 - mod_x1)
-    mod_y2 <- mod_b + mod_m * (mod_x2 - mod_x1)
+    # 
+    # The fluxes were (probably) computed on normalized timestamps;
+    # subtract off minimum observation time for correct predicted values
+    mod_y1 <- mod_b + mod_m * (mod_x1 - min(p_dat[[obs_time_column]]))
+    mod_y2 <- mod_b + mod_m * (mod_x2 - min(p_dat[[obs_time_column]]))
     
     p <- ggplot(p_dat, aes(.data[[params$obs_time_column]], 
                            .data[[params$obs_conc_column]])) + 
@@ -124,8 +127,7 @@ if(!is.null(od)) {
       ggtitle(i)
     print(p)
   }
-  # merge fd and od
-  # plot, one by one or entire
+ 
 } else {
   message("No observational data were provided")
 }

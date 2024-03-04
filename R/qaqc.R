@@ -27,7 +27,7 @@
 #' # Toy data
 #' cars$Plot <- LETTERS[1:5]
 #' cars$TIMESTAMP <- cars$speed
-#' fd <- wtf_compute_fluxes(cars, "Plot", "TIMESTAMP", "dist")
+#' fd <- wtf_compute_fluxes(cars, "Plot", "TIMESTAMP", "dist", dead_band = 5)
 #' x <- wtf_qaqc(fd, group_column = "Plot")
 #' file.remove(x) # clean up
 #' # Pass in observations as well as fluxes for more complete QA/QC
