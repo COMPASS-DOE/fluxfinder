@@ -79,7 +79,7 @@ wtf_read_LI7820 <- function(file) {
 #' Read a LGR 915-0011 data file
 #'
 #' @param file Filename to read, character
-#' @param tz Time zone of the file, character (optional)
+#' @param tz Time zone of the file's time data, character (optional)
 #' @return A \code{\link{data.frame}} with the parsed data.
 #' @importFrom lubridate mdy_hms
 #' @importFrom utils read.csv
@@ -89,7 +89,7 @@ wtf_read_LI7820 <- function(file) {
 #' @examples
 #' f <- system.file("extdata/LGR-data.csv", package = "whattheflux")
 #' dat <- wtf_read_LGR915(f)
-#' dat <- wtf_read_LGR915(f, tz = "EST") # specify time zone of the measurements
+#' dat <- wtf_read_LGR915(f, tz = "EST") # specify time zone
 wtf_read_LGR915 <- function(file, tz = "UTC") {
   dat_raw <- readLines(file)
 
@@ -100,5 +100,28 @@ wtf_read_LGR915 <- function(file, tz = "UTC") {
   dat$Time <- mdy_hms(dat$Time, tz = tz)
   dat$SN <- trimws(gsub(".*SN:", "", dat_raw[1]))
   dat$MODEL <- "915-0011"
+  return(dat)
+}
+
+#' Read a Picarro G2301 data file
+#'
+#' @param file Filename to read, character
+#' @param tz Time zone of the file's time data, character (optional)
+#' @return A \code{\link{data.frame}} with the parsed data.
+#' @importFrom lubridate mdy_hms
+#' @importFrom utils read.table
+#' @references
+#' \url{https://www.picarro.com/environmental/products/g2301_gas_concentration_analyzer}
+#' @export
+#' @examples
+#' f <- system.file("extdata/PicarroG2301-data.dat", package = "whattheflux")
+#' dat <- wtf_read_PicarroG2301(f)
+#' dat <- wtf_read_PicarroG2301(f, tz = "EST") # specify time zone
+wtf_read_PicarroG2301 <- function(file, tz = "UTC") {
+
+  dat <- read.table(file, header = TRUE, stringsAsFactors = FALSE)
+
+  dat$TIMESTAMP <- ymd_hms(paste(dat$DATE, dat$TIME), tz = tz)
+  dat$MODEL <- "G2301"
   return(dat)
 }
