@@ -9,7 +9,7 @@ wtf_read_LGR915(file, tz = "UTC")
 \arguments{
 \item{file}{Filename to read, character}
 
-\item{tz}{Time zone of the file, character (optional)}
+\item{tz}{Time zone of the file's time data, character (optional)}
 }
 \value{
 A \code{\link{data.frame}} with the parsed data.
@@ -24,5 +24,5 @@ made by Los Gatos Research.
 \examples{
 f <- system.file("extdata/LGR-data.csv", package = "whattheflux")
 dat <- wtf_read_LGR915(f)
-dat <- wtf_read_LGR915(f, tz = "EST") # specify time zone of the measurements
+dat <- wtf_read_LGR915(f, tz = "EST") # specify time zone
 }
