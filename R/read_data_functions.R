@@ -108,7 +108,7 @@ wtf_read_LGR915 <- function(file, tz = "UTC") {
 #' @param file Filename to read, character
 #' @param tz Time zone of the file's time data, character (optional)
 #' @return A \code{\link{data.frame}} with the parsed data.
-#' @importFrom lubridate mdy_hms
+#' @importFrom lubridate ymd_hms
 #' @importFrom utils read.table
 #' @references
 #' \url{https://www.picarro.com/environmental/products/g2301_gas_concentration_analyzer}
@@ -123,5 +123,49 @@ wtf_read_PicarroG2301 <- function(file, tz = "UTC") {
 
   dat$TIMESTAMP <- ymd_hms(paste(dat$DATE, dat$TIME), tz = tz)
   dat$MODEL <- "G2301"
+  return(dat)
+}
+
+#' Read an EGM-R data file
+#'
+#' @param file Filename to read, character
+#' @param year Four-digit year of the data (EGM-4 output files have
+#' month, day, hour, and minute, but not year), numeric or character
+#' @param tz Time zone of the file's time data, character (optional)
+#' @return A \code{\link{data.frame}} with the parsed data.
+#' @importFrom lubridate ymd_hm
+#' @importFrom utils read.table
+#' @export
+#' @examples
+#' f <- system.file("extdata/EGM4-data.dat", package = "whattheflux")
+#' dat <- wtf_read_EGM4(f, 2023)
+#' dat <- wtf_read_EGM4(f, 2023, tz = "EST") # specify time zone
+wtf_read_EGM4 <- function(file, year, tz = "UTC") {
+
+  dat_raw <- readLines(file)
+
+  if(!grepl("EGM-4", dat_raw[1])) {
+    stop("This does not look like an EGM-4 file!")
+  }
+
+  dat_raw[3] <- gsub("^;", "", dat_raw[3])
+  # We want the header line, so remove its initial semicolon...
+  software <- gsub("^;SoftwareVersion=", "", dat_raw[2])
+  # ...and then remove all lines that begin with a semicolon
+  dat_raw <- dat_raw[grep("^;", dat_raw, invert = TRUE)]
+
+  dat <- read.table(textConnection(dat_raw),
+                    header = TRUE,
+                    sep = "\t",
+                    check.names = FALSE,
+                    stringsAsFactors = FALSE)
+
+  dat$SOFTWARE <- software
+  dat$MODEL <- "EGM-4"
+  dat$TIMESTAMP <- ymd_hm(paste(
+    paste(year, dat$Month, dat$Day, sep = "-"),
+    paste(dat$Hour, dat$Min, sep = ":")
+    ), tz = tz)
+
   return(dat)
 }
