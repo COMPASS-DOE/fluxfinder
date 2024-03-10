@@ -43,7 +43,7 @@ except that `TIMESTAMP`, `TZ` (time zone of the timestamps),
 The analyzer data is basically a stream of measured 
 greenhouse gas concentrations:
 
-```{r overview-plot, fig.width=8}
+```{r overview-plot, fig.width=7}
 library(ggplot2)
 ggplot(dat, aes(TIMESTAMP, CO2)) + geom_point()
 ```
@@ -71,7 +71,7 @@ The `wtf_metadata_match` function matches up the data with metadata,
 using the `TIMESTAMP` column that `wtf_read_LI7810` helpfully created
 when it read the data file.
 
-```{r matching, fig.width=8}
+```{r matching, fig.width=7}
 dat$metadat_row <- wtf_metadata_match(
   data_timestamps = dat$TIMESTAMP,
   start_dates = metadat$Date,
@@ -92,7 +92,7 @@ print(p)
 Some of these are clearly not correct--the measurement time seems to be shorter
 then 60 seconds for the C, D, and E plots:
 
-```{r emphasize-problems, fig.width=8, echo=FALSE, message=FALSE}
+```{r emphasize-problems, fig.width=7, echo=FALSE, message=FALSE}
 library(lubridate)
 p + annotate("rect", ymin = 455, ymax = 476, 
              xmin = ymd_hms("2022-10-27 10:39:30", tz = "EST"), 
@@ -103,7 +103,7 @@ p + annotate("rect", ymin = 455, ymax = 476,
 In real life we'd want to correct the faulty metadata at its source.
 Here, we'll just change the values programmatically and re-match:
 
-```{r matching2, fig.width=8}
+```{r matching2, fig.width=7}
 metadat$Obs_length[3:5] <- c(30, 45, 45)
 dat$metadat_row <- wtf_metadata_match(
   data_timestamps = dat$TIMESTAMP,
@@ -171,7 +171,7 @@ The `wtf_compute_fluxes` function provides a general-purpose tool for
 computing fluxes from concentration time series, as well as associated
 QA/QC information.
 
-```{r, fig.width=8}
+```{r compute-fluxes}
 fluxes <- wtf_compute_fluxes(dat,
                              group_column = "Plot", 
                              time_column = "TIMESTAMP", 
@@ -183,14 +183,26 @@ fluxes <- wtf_compute_fluxes(dat,
 # group label; the second is the average value of the `time_column`;
 # and the rest of the columns are fit statistics for a linear fit of
 # concentration as a function of time, along with information about polynomial
-# and robust-linear fits.
+# and robust-linear fits. See ?wtf_compute_fluxes for more details.
 
 # For clarity, print out only a subset of the columns 
-fluxes[c(1:2, 4, 14, 15, 20)]
+fluxes[c("Plot", "TIMESTAMP", "adj.r.squared", "slope_estimate", "slope_HM1981")]
 
-# The data frame also has columns TIMESTAMP_min and TIMESTAMP_max,
-# specifying the entire period over which each flux was computed.
+```
 
+Note that the `fluxes` extract printed above has one row per `Plot`, the
+grouping variable; the mean `TIMESTAMP` of the group; model statistics
+such as `adj.r.squared`; and the slope (i.e., flux) estimate. The final
+column, `slope_HM1981`, gives the flux computed using a nonlinear model
+derived from diffusion theory, following
+[Hutchinson and Mosier (1981)](http://dx.doi.org/10.2136/sssaj1981.03615995004500020017x). This
+is only numeric (i.e., not `NA`) when the data show evidence of a saturating
+curvature. So in this case we might want to examine more carefully the
+data from plots A, C, and F.
+
+Plotting our computed fluxes:
+
+```{r plot-fluxes, fig.width=7}
 ggplot(fluxes, aes(Plot, slope_estimate, color = adj.r.squared)) +
   geom_point() +
   geom_linerange(aes(ymin = slope_estimate - slope_std.error,
@@ -198,10 +210,11 @@ ggplot(fluxes, aes(Plot, slope_estimate, color = adj.r.squared)) +
   ylab("CO2 flux (µmol/m2/s)")
 ```
 
+
 We might want to check whether the robust-linear slope diverges from the
 linear fit slope (suggesting influential outliers) or whether the
 polynomial R<sup>2</sup> is much larger (potentially indicating curvature 
-of the observations due to e.g. diffusion changes).
+of the observations due to e.g. diffusion limitations).
 
 ```{r, figures-side, fig.show="hold", out.width="46%"}
 ggplot(fluxes, aes(slope_estimate, slope_estimate_robust, color = Plot)) +
@@ -212,7 +225,8 @@ ggplot(fluxes, aes(adj.r.squared, r.squared_poly, color = Plot)) +
 
 The plot C (green) data have more scatter, and thus lower R<sup>2</sup> values and
 higher uncertainty on the computed flux,
-but there's no evidence of nonlinearity or outlier problems.
+but there's no strong evidence of nonlinearity or outlier problems (although
+see note above about the `slope_HM1981` field).
 
 ## Conclusion
 

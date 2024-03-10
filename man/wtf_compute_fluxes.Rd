@@ -37,7 +37,8 @@ default is \code{\link{wtf_fit_models}}}
 }
 \value{
 A data.frame with one row per \code{group_column} value. It will
-always include the mean value of \code{time_column} for that group, but other
+always include the mean, minimum, and maximum values of \code{time_column}
+for that group, but other
 columns depend on what is returned by the \code{fit_function}.
 }
 \description{
@@ -50,4 +51,7 @@ wtf_compute_fluxes(cars, group_column = NULL, "speed", "dist")
 cars$Plot <- c("A", "B")
 wtf_compute_fluxes(cars, "Plot", "speed", "dist")
 # See the introductory vignette for a fully-worked example with real data
+}
+\seealso{
+\code{\link{wtf_fit_models}}
 }

@@ -18,9 +18,24 @@ wtf_fit_models(time, conc, area, volume)
 }
 \value{
 A wide-form \code{\link{data.frame}} with fit statistics for linear,
-robust linear, and polynomial models. By default, extensive details are
-provided only for the linear fi; for robust linear and polynomial, only
-the slope and R2 are returned, respectively, as these are intended for QA/QC.
+robust linear, and polynomial models.
+The following columns are returned:
+\itemize{
+\item Model statistics \code{r.squared}, \code{adj.r.squared},
+\code{sigma}, \code{statistic}, and \code{p.value} (see the
+\code{\link{lm}} documentation for more information);
+\item Slope (flux) statistics \code{slope_estimate}, \code{slope_std.error},
+\code{slope_statistic}, and \code{slope_p.value}, all from \code{\link{lm}};
+\item Intercept statistics \code{int_estimate}, \code{int_std.error},
+\code{int_statistic}, and \code{int_p.value}, all from \code{\link{lm}};
+\item Additional diagnostics: \code{slope_estimate_robust}, the slope of a
+robust linear regression model using \code{\link[MASS]{rlm}};
+\code{r.squared_poly}, the fraction of variance explained by a
+second-order polynomial model, and \code{slope_HM1981}, the flux
+computed by \code{\link{wtf_hm1981}} using nonlinear regression based
+on one-dimensional diffusion theory following
+Hutchinson and Mosier (1981) and Nakano et al. (2004).
+}
 }
 \description{
 Fit various models to gas concentration data
@@ -28,15 +43,31 @@ Fit various models to gas concentration data
 \details{
 If a linear model cannot be fit, NULL is returned. If the robust
 linear and/or polynomial models cannot be fit, then \code{NA} is returned
-for their particular statistics.
+for their particular statistics. By default, extensive details are provided
+only for the linear fit; for robust linear and polynomial, only the slope
+and R2 are returned, respectively, as these are intended for QA/QC.
+}
+\note{
+Normally this is not called
+directly by users, but instead via \code{\link{wtf_compute_fluxes}}.
 }
 \examples{
 # Toy data
 wtf_fit_models(cars$speed, cars$dist)
 # Real data
 f <- system.file("extdata/TG10-01087.data", package = "whattheflux")
-dat <- wtf_read_LI7810(f)[1:75,] # manually isolate first observation
+dat <- wtf_read_LI7810(f)[1:75,] # isolate first observation
 dat$SECONDS <- dat$SECONDS - min(dat$SECONDS) # normalize time to start at 0
 plot(dat$SECONDS, dat$CO2)
 wtf_fit_models(dat$SECONDS, dat$CO2)
+}
+\references{
+Nakano, T., Sawamoto, T., Morishita, T., Inoue, G., and Hatano, R.:
+A comparison of regression methods for estimating soil–atmosphere diffusion
+gas fluxes by a closed-chamber technique, Soil Biol. Biochem.,
+36, 107–113, 2004. \url{http://dx.doi.org/10.1016/j.soilbio.2003.07.005}
+
+Hutchinson, G. L. and Mosier, A. R.: Improved soil cover method for field
+measurement of nitrous oxide fluxes, Soil Sci. Soc. Am. J., 45, 311-316,
+1981. \url{http://dx.doi.org/10.2136/sssaj1981.03615995004500020017x}
 }

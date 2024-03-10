@@ -9,6 +9,10 @@ test_that("wtf_fit_models works", {
   )
   expect_s3_class(y, "data.frame")
   expect_true(is.na(y$r.squared_poly))
+
+  # Nonlinear data should generate a message
+  expect_message(wtf_fit_models(Puromycin$conc, Puromycin$rate),
+                 regexp = "nonlinear data")
 })
 
 test_that("wtf_normalize_time works", {
@@ -73,4 +77,12 @@ test_that("wtf_ppm_to_umol works", {
   expect_gt(wtf_ppm_to_umol(0.18, volume = 1), x)
 
   # Not sure what else to test
+})
+
+test_that("wtf_hm1981 works", {
+  withr::local_options(whattheflux.quiet = TRUE)
+
+  # Should return NA for linear-ish data, and numeric value for nonlinear
+  expect_identical(wtf_hm1981(cars$speed, cars$dist), NA_real_)
+  expect_true(!is.na(wtf_hm1981(Puromycin$conc, Puromycin$rate)))
 })
