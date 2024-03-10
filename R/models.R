@@ -8,12 +8,39 @@
 #' @param volume Volume of the system
 #' (chamber + tubing + analyzer, typically cm3), numeric
 #' @return A wide-form \code{\link{data.frame}} with fit statistics for linear,
-#' robust linear, and polynomial models. By default, extensive details are
-#' provided only for the linear fi; for robust linear and polynomial, only
-#' the slope and R2 are returned, respectively, as these are intended for QA/QC.
+#' robust linear, and polynomial models.
+#' The following columns are returned:
+#' * Model statistics \code{r.squared}, \code{adj.r.squared},
+#' \code{sigma}, \code{statistic}, and \code{p.value} (see the
+#' \code{\link{lm}} documentation for more information);
+#' * Slope (flux) statistics \code{slope_estimate}, \code{slope_std.error},
+#' \code{slope_statistic}, and \code{slope_p.value}, all from \code{\link{lm}};
+#' * Intercept statistics \code{int_estimate}, \code{int_std.error},
+#' \code{int_statistic}, and \code{int_p.value}, all from \code{\link{lm}};
+#' * Additional diagnostics: \code{slope_estimate_robust}, the slope of a
+#' robust linear regression model using \code{\link[MASS]{rlm}};
+#' \code{r.squared_poly}, the fraction of variance explained by a
+#' second-order polynomial model, and \code{slope_HM1981}, the flux
+#' computed by \code{\link{wtf_hm1981}} using nonlinear regression based
+#' on one-dimensional diffusion theory following
+#' Hutchinson and Mosier (1981) and Nakano et al. (2004).
+#' @md
 #' @details If a linear model cannot be fit, NULL is returned. If the robust
 #' linear and/or polynomial models cannot be fit, then \code{NA} is returned
-#' for their particular statistics.
+#' for their particular statistics. By default, extensive details are provided
+#' only for the linear fit; for robust linear and polynomial, only the slope
+#' and R2 are returned, respectively, as these are intended for QA/QC.
+#' @note Normally this is not called
+#' directly by users, but instead via \code{\link{wtf_compute_fluxes}}.
+#' @references
+#' Nakano, T., Sawamoto, T., Morishita, T., Inoue, G., and Hatano, R.:
+#' A comparison of regression methods for estimating soil–atmosphere diffusion
+#' gas fluxes by a closed-chamber technique, Soil Biol. Biochem.,
+#' 36, 107–113, 2004. \url{http://dx.doi.org/10.1016/j.soilbio.2003.07.005}
+#'
+#' Hutchinson, G. L. and Mosier, A. R.: Improved soil cover method for field
+#' measurement of nitrous oxide fluxes, Soil Sci. Soc. Am. J., 45, 311-316,
+#' 1981. \url{http://dx.doi.org/10.2136/sssaj1981.03615995004500020017x}
 #' @importFrom broom glance tidy
 #' @importFrom MASS rlm
 #' @importFrom stats lm coefficients
@@ -23,7 +50,7 @@
 #' wtf_fit_models(cars$speed, cars$dist)
 #' # Real data
 #' f <- system.file("extdata/TG10-01087.data", package = "whattheflux")
-#' dat <- wtf_read_LI7810(f)[1:75,] # manually isolate first observation
+#' dat <- wtf_read_LI7810(f)[1:75,] # isolate first observation
 #' dat$SECONDS <- dat$SECONDS - min(dat$SECONDS) # normalize time to start at 0
 #' plot(dat$SECONDS, dat$CO2)
 #' wtf_fit_models(dat$SECONDS, dat$CO2)
@@ -35,8 +62,9 @@ wtf_fit_models <- function(time, conc, area, volume) {
     return(NULL)
   }
 
-  # Linear model overall metrics
-  model_stats <- glance(mod)
+  # Linear model overall metrics. 'glance' produces 12 different ones;
+  # we keep the first 5 (adjR2, R2, sigma, statistic, p-value)
+  model_stats <- glance(mod)[,1:5]
 
   # Slope and intercept statistics
   tmod <- tidy(mod)
@@ -65,10 +93,50 @@ wtf_fit_models <- function(time, conc, area, volume) {
     NA_real_
   })
 
+  # Add slope computed using Hutchinson and Mosier (1981) nonlinear regression
+  slope_stats$slope_HM1981 <- wtf_hm1981(time, conc)
+  if(!is.na(slope_stats$slope_HM1981)) {
+    wtf_message("NOTE: slope_HM1981 is non-NA, implying nonlinear data")
+  }
+
   # Combine and return
   return(cbind(model_stats, slope_stats, intercept_stats))
 }
 
+
+#' Compute flux using nonlinear Hutchinson and Mosier (1981) model
+#'
+#' @param time Time values, numeric
+#' @param conc Gas concentration values, numeric
+#' @param h Effective chamber height
+#' @return Flux estimate; see references for more information.
+#' @export
+#' @importFrom stats approx
+#' @references
+#' Hutchinson, G. L. and Mosier, A. R.: Improved soil cover method for field
+#' measurement of nitrous oxide fluxes, Soil Sci. Soc. Am. J., 45, 311-316,
+#' 1981. \url{http://dx.doi.org/10.2136/sssaj1981.03615995004500020017x}
+#' @examples
+#' # If data are approximately linear, then NA is returned
+#' wtf_hm1981(cars$speed, cars$dist)
+#' # If data are nonlinear (saturating) then flux based on gas diffusion theory
+#' wtf_hm1981(Puromycin$conc, Puromycin$rate)
+wtf_hm1981 <- function(time, conc, h = 1) {
+  # Compute slope using Hutchinson and Mosier (1981) nonlinear technique
+  vals <- approx(time, conc, xout = c(min(time), mean(time), max(time)), ties = mean)$y
+  C0 <- vals[1]
+  C1 <- vals[2]
+  C2 <- vals[3]
+  Tmax <- max(time)
+
+  logterm <- (C1 - C0) / (C2 - C1)
+  # This approach is only valid when (C1-C0)/(C2-C1) > 1
+  if(logterm > 1) {
+    (h * (C1 - C0)) ^ 2 / (0.5 * Tmax * (2 * C1 - C2 - C0)) * log(logterm)
+  } else {
+    NA_real_
+  }
+}
 
 
 #' Normalize a vector of times
@@ -101,8 +169,10 @@ wtf_normalize_time <- function(time, normalize = TRUE) {
 #' default is \code{\link{wtf_fit_models}}
 #' @param ... Other parameters passed to \code{fit_function}
 #' @return A data.frame with one row per \code{group_column} value. It will
-#' always include the mean value of \code{time_column} for that group, but other
+#' always include the mean, minimum, and maximum values of \code{time_column}
+#' for that group, but other
 #' columns depend on what is returned by the \code{fit_function}.
+#' @seealso \code{\link{wtf_fit_models}}
 #' @export
 #' @examples
 #' # No grouping
