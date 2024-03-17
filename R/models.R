@@ -243,7 +243,7 @@ wtf_compute_fluxes <- function(data,
 NULL
 
 #' @rdname ideal-gas-law
-#' @param ppm Gas concentration, numeric
+#' @param ppm Gas concentration (ppmv), numeric
 #' @examples
 #' wtf_ppm_to_umol(400, 0.1)
 #' @export

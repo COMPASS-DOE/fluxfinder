@@ -11,7 +11,7 @@ wtf_ppm_to_umol(ppm, volume, temp, atm)
 wtf_ppb_to_nmol(ppb, volume, temp, atm)
 }
 \arguments{
-\item{ppm}{Gas concentration, numeric}
+\item{ppm}{Gas concentration (ppmv), numeric}
 
 \item{volume}{System volume (chamber + tubing + analyzer, m3), numeric}
 
