@@ -225,7 +225,6 @@ wtf_compute_fluxes <- function(data,
 }
 
 
-
 #' Convert gas concentration to quantity using the Ideal Gas Law
 #'
 #' @param volume System volume (chamber + tubing + analyzer, m3), numeric
