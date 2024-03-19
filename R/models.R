@@ -223,38 +223,3 @@ wtf_compute_fluxes <- function(data,
   onleft <- c(group_column, time_column)
   return(z[c(onleft, setdiff(names(z), onleft))])
 }
-
-
-#' Convert ppm to micromoles using the Ideal Gas Law
-#'
-#' @param ppm Gas concentration (ppmv), numeric
-#' @param volume System volume (chamber + tubing + analyzer, m3), numeric
-#' @param temp Optional chamber temperature (degrees C), numeric
-#' @param atm Optional atmospheric pressure (Pa), numeric
-#' @return The value(s) in micromoles.
-#' @export
-#' @references Steduto et al.:
-#' Automated closed-system canopy-chamber for continuous field-crop monitoring
-#' of CO2 and H2O fluxes, Agric. For. Meteorol., 111:171-186, 2002.
-#' \url{http://dx.doi.org/10.1016/S0168-1923(02)00023-0}
-#' @note If \code{temp} and/or \code{atm} are not provided, the defaults
-#' are NIST normal temperature and pressure.
-wtf_ppm_to_umol <- function(ppm, volume, temp, atm) {
-
-  if(missing(temp)) {
-    temp <- 20
-    wtf_message("Assuming temp = ", temp, " C")
-  }
-  if(missing(atm)) {
-    atm <- 101325
-    wtf_message("Assuming atm = ", atm, " Pa")
-  }
-
-  # Gas constant, from https://en.wikipedia.org/wiki/Gas_constant
-  R <- 8.31446261815324	 # m3 Pa K−1 mol−1
-  wtf_message("Using R = ", R, " m3 Pa K-1 mol-1")
-  TEMP_K <- temp + 273.15
-
-  # Use ideal gas law to calculate micromoles: n = pV/RT
-  return(ppm * atm * volume / (R * TEMP_K))
-}

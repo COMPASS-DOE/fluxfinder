@@ -121,7 +121,8 @@ That looks better!
 
 We'd like our final units to be in µmol/m2/s, and so need to do some unit
 conversion. (This can happen either before or after flux computation, below.)
-The package provides `wtf_ppm_to_umol()` that does this conversion using the
+The package provides `wtf_ppm_to_umol()` and `wtf_ppb_to_nmol()` functions
+that perform this conversion using the
 [Ideal Gas Law](https://en.wikipedia.org/wiki/Ideal_gas_law).
 
 ```{r units}
