@@ -35,7 +35,7 @@ f <- system.file("extdata/TG10-01087-curvature.data", package = "whattheflux")
 dat <- wtf_read_LI7810(f)
 
 # Fit a linear flux and QA/QC it
-flux <- wtf_compute_fluxes(dat, group_column = NULL, time_column = "TIMESTAMP", conc_column = "CO2")
+flux <- wtf_compute_fluxes(dat, group_column = NULL, time_column = "TIMESTAMP", gas_column = "CO2")
 print(flux$flux_estimate)
 print(flux$adj.r.squared)
 print(flux$r.squared_poly)

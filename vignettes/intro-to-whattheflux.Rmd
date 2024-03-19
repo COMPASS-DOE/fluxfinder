@@ -176,7 +176,7 @@ QA/QC information.
 fluxes <- wtf_compute_fluxes(dat,
                              group_column = "Plot", 
                              time_column = "TIMESTAMP", 
-                             conc_column = "CO2_umol_m2",
+                             gas_column = "CO2_umol_m2",
                              dead_band = 10)
 
 # By default, wtf_compute_fluxes returns a data.frame with one row per
