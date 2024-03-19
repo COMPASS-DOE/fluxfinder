@@ -7,12 +7,13 @@
 #' @param group_column Name of the grouping label column in \code{flux_data},
 #' character; pass NULL to run with no grouping
 #' @param flux_column Name of the column with flux estimates; defaults to
-#' "slope_estimate", the output of \code{\link{wtf_compute_fluxes}}
+#' "flux_estimate", the output of \code{\link{wtf_compute_fluxes}}
+#' @param int_column Name of the column with intercept estimates; defaults to
+#' "int_estimate", the output of \code{\link{wtf_compute_fluxes}}
 #' @param r2_column Name of the column with adjusted R2 values; defaults to
 #' "adj.r.squared", the output of \code{\link{wtf_compute_fluxes}}
 #' @param time1_column time1_column
 #' @param time2_column time2_column
-#' @param int_column int_column
 #' @param obs_data Observational data, optional; a data.frame of concentration
 #' data from which the \code{flux_data} were computed
 #' @param obs_time_column obs_time_column
@@ -37,11 +38,11 @@
 #' # See the introductory vignette for a fully-worked example with real data
 wtf_qaqc <- function(flux_data,
                      group_column,
-                     flux_column = "slope_estimate",
+                     flux_column = "flux_estimate",
+                     int_column = "int_estimate",
                      r2_column = "adj.r.squared",
                      time1_column = "TIMESTAMP_min",
                      time2_column = "TIMESTAMP_max",
-                     int_column = "int_estimate",
                      obs_data = NULL,
                      obs_time_column = "TIMESTAMP",
                      obs_gas_column = NULL,
@@ -77,10 +78,10 @@ wtf_qaqc <- function(flux_data,
                             params = list(flux_data = tf_flux_data,
                                           group_column = group_column,
                                           flux_column = flux_column,
+                                          int_column = int_column,
                                           r2_column = r2_column,
                                           time1_column = time1_column,
                                           time2_column = time2_column,
-                                          int_column = int_column,
                                           obs_data = tf_obs_data,
                                           obs_time_column = obs_time_column,
                                           obs_gas_column = obs_gas_column

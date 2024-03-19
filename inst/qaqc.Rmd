@@ -7,11 +7,11 @@ output:
 params:
   flux_data: ""
   group_column: NULL
-  flux_column: "slope_estimate"
+  flux_column: "flux_estimate"
+  int_column: "int_estimate"
   r2_column: "adj.r.squared"
   time1_column: "TIMESTAMP_min"
   time2_column: "TIMESTAMP_max"
-  int_column: "int_estimate"
   obs_data: ""
   obs_time_column: "TIMESTAMP"
   obs_gas_column: NULL
@@ -57,10 +57,14 @@ Rows of flux data: `r nrow(fd)`
 Rows of observation data: `r nrow(od)`
 
 
-## Flux distribution
+## Flux and intercept distribution
 
-```{r, flux-distribution}
-p <- ggplot(fd, aes(flux_estimate)) +
+```{r, flux-int-distribution}
+p <- ggplot(fd, aes(.data[[params$flux_column]])) +
+  geom_histogram(bins = 30)
+print(p)
+
+p <- ggplot(fd, aes(.data[[params$int_column]])) +
   geom_histogram(bins = 30)
 print(p)
 ```
@@ -70,9 +74,9 @@ print(p)
 Fluxes that depart from the 1:1 may have influential outliers in the underlying data.
 
 ```{r, linear-versus-robust}
-fd <- add_labels(fd, params$flux_column, "slope_estimate_robust")
+fd <- add_labels(fd, params$flux_column, "flux_estimate_robust")
 p <- ggplot(fd, aes(.data[[params$flux_column]], 
-                    slope_estimate_robust, label = .label)) +
+                    flux_estimate_robust, label = .label)) +
   geom_point() +
   geom_text(size = 5, nudge_y = 0.1, na.rm = TRUE) +
   geom_abline() + 
@@ -103,6 +107,7 @@ Fitted flux line is in red.
 ```{r obs-and-fluxes, eval=TRUE}
 if(!is.null(od)) {
   
+  fd$TIMESTAMP <- NULL # remove so it doesn't conflict with obs data
   plotdata <- merge(od, fd, by = params$group_column)
   for(i in unique(plotdata[[group_column]])) {
     p_dat <- plotdata[plotdata[[group_column]] == i,]
@@ -131,4 +136,4 @@ if(!is.null(od)) {
 } else {
   message("No observational data were provided")
 }
-```
+```   
