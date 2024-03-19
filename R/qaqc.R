@@ -16,7 +16,7 @@
 #' @param obs_data Observational data, optional; a data.frame of concentration
 #' data from which the \code{flux_data} were computed
 #' @param obs_time_column obs_time_column
-#' @param obs_conc_column obs_conc_column
+#' @param obs_gas_column obs_gas_column
 #' @param open_output Automatically open the output HTML file?
 #' @param ... Other parameters passed on to \code{\link[rmarkdown]{render}}
 #' @importFrom utils browseURL
@@ -32,7 +32,7 @@
 #' file.remove(x) # clean up
 #' # Pass in observations as well as fluxes for more complete QA/QC
 #' x <- wtf_qaqc(fd, group_column = "Plot",
-#'   obs_data = cars, obs_conc_column = "dist")
+#'   obs_data = cars, obs_gas_column = "dist")
 #' file.remove(x) # clean up
 #' # See the introductory vignette for a fully-worked example with real data
 wtf_qaqc <- function(flux_data,
@@ -44,15 +44,15 @@ wtf_qaqc <- function(flux_data,
                      int_column = "int_estimate",
                      obs_data = NULL,
                      obs_time_column = "TIMESTAMP",
-                     obs_conc_column = NULL,
+                     obs_gas_column = NULL,
                      open_output = TRUE,
                      ...) {
 
   if(!requireNamespace("rmarkdown", quietly = TRUE)) {
     stop("To run this function, please install the rmarkdown package")
   }
-  if(!is.null(obs_data) & is.null(obs_conc_column)) {
-    stop("If obs_data is provided, obs_conc_column must be specified")
+  if(!is.null(obs_data) & is.null(obs_gas_column)) {
+    stop("If obs_data is provided, obs_gas_column must be specified")
   }
 
   # Save the flux data into a temporary file so as to pass the
@@ -83,7 +83,7 @@ wtf_qaqc <- function(flux_data,
                                           int_column = int_column,
                                           obs_data = tf_obs_data,
                                           obs_time_column = obs_time_column,
-                                          obs_conc_column = obs_conc_column
+                                          obs_gas_column = obs_gas_column
                             ),
                             ...)
   if(open_output) browseURL(paste0('file://', fout))

@@ -14,7 +14,7 @@ wtf_qaqc(
   int_column = "int_estimate",
   obs_data = NULL,
   obs_time_column = "TIMESTAMP",
-  obs_conc_column = NULL,
+  obs_gas_column = NULL,
   open_output = TRUE,
   ...
 )
@@ -42,7 +42,7 @@ data from which the \code{flux_data} were computed}
 
 \item{obs_time_column}{obs_time_column}
 
-\item{obs_conc_column}{obs_conc_column}
+\item{obs_gas_column}{obs_gas_column}
 
 \item{open_output}{Automatically open the output HTML file?}
 
@@ -63,7 +63,7 @@ x <- wtf_qaqc(fd, group_column = "Plot")
 file.remove(x) # clean up
 # Pass in observations as well as fluxes for more complete QA/QC
 x <- wtf_qaqc(fd, group_column = "Plot",
-  obs_data = cars, obs_conc_column = "dist")
+  obs_data = cars, obs_gas_column = "dist")
 file.remove(x) # clean up
 # See the introductory vignette for a fully-worked example with real data
 }
