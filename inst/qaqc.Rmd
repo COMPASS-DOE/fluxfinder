@@ -37,7 +37,7 @@ Rows of flux data: `r nrow(fd)`
 ## Flux distribution
 
 ```{r, flux-distribution}
-p <- ggplot(fd, aes(slope_estimate)) +
+p <- ggplot(fd, aes(flux_estimate)) +
   geom_histogram(bins = 30)
 print(p)
 ```
@@ -47,8 +47,8 @@ print(p)
 Fluxes that depart from the 1:1 may have influential outliers in the underlying data.
 
 ```{r, linear-versus-robust}
-fd <- add_labels(fd, "slope_estimate", "slope_estimate_robust", level = 0.75)
-p <- ggplot(fd, aes(slope_estimate, slope_estimate_robust, label = label)) +
+fd <- add_labels(fd, "flux_estimate", "flux_estimate_robust", level = 0.75)
+p <- ggplot(fd, aes(flux_estimate, flux_estimate_robust, label = label)) +
   geom_point() +
   geom_text(size = 5, nudge_y = 0.1, na.rm = TRUE) +
   geom_abline() + 

@@ -24,14 +24,14 @@ The following columns are returned:
 \item Model statistics \code{r.squared}, \code{adj.r.squared},
 \code{sigma}, \code{statistic}, and \code{p.value} (see the
 \code{\link{lm}} documentation for more information);
-\item Slope (flux) statistics \code{slope_estimate}, \code{slope_std.error},
-\code{slope_statistic}, and \code{slope_p.value}, all from \code{\link{lm}};
+\item Flux (slope) statistics \code{flux_estimate}, \code{flux_std.error},
+\code{flux_statistic}, and \code{flux_p.value}, all from \code{\link{lm}};
 \item Intercept statistics \code{int_estimate}, \code{int_std.error},
 \code{int_statistic}, and \code{int_p.value}, all from \code{\link{lm}};
-\item Additional diagnostics: \code{slope_estimate_robust}, the slope of a
+\item Additional diagnostics: \code{flux_estimate_robust}, the slope of a
 robust linear regression model using \code{\link[MASS]{rlm}};
 \code{r.squared_poly}, the fraction of variance explained by a
-second-order polynomial model, and \code{slope_HM1981}, the flux
+second-order polynomial model, and \code{flux_HM1981}, the flux
 computed by \code{\link{wtf_hm1981}} using nonlinear regression based
 on one-dimensional diffusion theory following
 Hutchinson and Mosier (1981) and Nakano et al. (2004).

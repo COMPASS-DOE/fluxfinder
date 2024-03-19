@@ -13,14 +13,14 @@
 #' * Model statistics \code{r.squared}, \code{adj.r.squared},
 #' \code{sigma}, \code{statistic}, and \code{p.value} (see the
 #' \code{\link{lm}} documentation for more information);
-#' * Slope (flux) statistics \code{slope_estimate}, \code{slope_std.error},
-#' \code{slope_statistic}, and \code{slope_p.value}, all from \code{\link{lm}};
+#' * Flux (slope) statistics \code{flux_estimate}, \code{flux_std.error},
+#' \code{flux_statistic}, and \code{flux_p.value}, all from \code{\link{lm}};
 #' * Intercept statistics \code{int_estimate}, \code{int_std.error},
 #' \code{int_statistic}, and \code{int_p.value}, all from \code{\link{lm}};
-#' * Additional diagnostics: \code{slope_estimate_robust}, the slope of a
+#' * Additional diagnostics: \code{flux_estimate_robust}, the slope of a
 #' robust linear regression model using \code{\link[MASS]{rlm}};
 #' \code{r.squared_poly}, the fraction of variance explained by a
-#' second-order polynomial model, and \code{slope_HM1981}, the flux
+#' second-order polynomial model, and \code{flux_HM1981}, the flux
 #' computed by \code{\link{wtf_hm1981}} using nonlinear regression based
 #' on one-dimensional diffusion theory following
 #' Hutchinson and Mosier (1981) and Nakano et al. (2004).
@@ -69,12 +69,12 @@ wtf_fit_models <- function(time, conc, area, volume) {
   # Slope and intercept statistics
   tmod <- tidy(mod)
   slope_stats <- tmod[2,-1]
-  names(slope_stats) <- paste("slope", names(slope_stats), sep = "_")
+  names(slope_stats) <- paste("flux", names(slope_stats), sep = "_")
   intercept_stats <- tmod[1,-1]
   names(intercept_stats) <- paste("int", names(intercept_stats), sep = "_")
 
   # Add robust regression slope as a QA/QC check
-  slope_stats$slope_estimate_robust <- tryCatch({
+  slope_stats$flux_estimate_robust <- tryCatch({
     robust <- rlm(conc ~ time)
     coefficients(robust)[2]
   },
@@ -94,9 +94,9 @@ wtf_fit_models <- function(time, conc, area, volume) {
   })
 
   # Add slope computed using Hutchinson and Mosier (1981) nonlinear regression
-  slope_stats$slope_HM1981 <- wtf_hm1981(time, conc)
-  if(!is.na(slope_stats$slope_HM1981)) {
-    wtf_message("NOTE: slope_HM1981 is non-NA, implying nonlinear data")
+  slope_stats$flux_HM1981 <- wtf_hm1981(time, conc)
+  if(!is.na(slope_stats$flux_HM1981)) {
+    wtf_message("NOTE: flux_HM1981 is non-NA, implying nonlinear data")
   }
 
   # Combine and return
