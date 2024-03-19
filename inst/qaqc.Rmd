@@ -14,7 +14,7 @@ params:
   int_column: "int_estimate"
   obs_data: ""
   obs_time_column: "TIMESTAMP"
-  obs_conc_column: NULL
+  obs_gas_column: NULL
 ---
 
 ```{r setup, include=FALSE}
@@ -60,7 +60,7 @@ Rows of observation data: `r nrow(od)`
 ## Flux distribution
 
 ```{r, flux-distribution}
-p <- ggplot(fd, aes(slope_estimate)) +
+p <- ggplot(fd, aes(flux_estimate)) +
   geom_histogram(bins = 30)
 print(p)
 ```
@@ -118,7 +118,7 @@ if(!is.null(od)) {
     mod_y2 <- mod_b + mod_m * (mod_x2 - min(p_dat[[obs_time_column]]))
     
     p <- ggplot(p_dat, aes(.data[[params$obs_time_column]], 
-                           .data[[params$obs_conc_column]])) + 
+                           .data[[params$obs_gas_column]])) + 
       geom_point() + 
       geom_smooth(method = "lm", formula = "y ~ x",
                   linetype = 2, color = "grey") +

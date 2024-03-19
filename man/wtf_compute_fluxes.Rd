@@ -8,7 +8,7 @@ wtf_compute_fluxes(
   data,
   group_column,
   time_column,
-  conc_column,
+  gas_column,
   dead_band = 0,
   normalize_time = TRUE,
   fit_function = wtf_fit_models,
@@ -23,7 +23,8 @@ pass NULL to run with no grouping}
 
 \item{time_column}{Name of the time column in \code{data}, character}
 
-\item{conc_column}{Name of the gas concentration column in \code{data}, character}
+\item{gas_column}{Name of the gas (concentration or quantity) column in
+\code{data}, character}
 
 \item{dead_band}{Length of dead band, the equilibration period at the
 beginning of the time series during which data are ignore, in seconds (numeric)}
@@ -37,8 +38,8 @@ default is \code{\link{wtf_fit_models}}}
 }
 \value{
 A data.frame with one row per \code{group_column} value. It will
-always include the minimum and maximum values of \code{time_column}
-for that group, as well as "Gas" (the \code{conc_column}), but other
+always include the mean, minimum, and maximum values of \code{time_column}
+for that group, but other
 columns depend on what is returned by the \code{fit_function}.
 }
 \description{
@@ -51,4 +52,7 @@ wtf_compute_fluxes(cars, group_column = NULL, "speed", "dist")
 cars$Plot <- c("A", "B")
 wtf_compute_fluxes(cars, "Plot", "speed", "dist")
 # See the introductory vignette for a fully-worked example with real data
+}
+\seealso{
+\code{\link{wtf_fit_models}}
 }
