@@ -7,11 +7,11 @@
 wtf_qaqc(
   flux_data,
   group_column,
-  flux_column = "slope_estimate",
+  flux_column = "flux_estimate",
+  int_column = "int_estimate",
   r2_column = "adj.r.squared",
   time1_column = "TIMESTAMP_min",
   time2_column = "TIMESTAMP_max",
-  int_column = "int_estimate",
   obs_data = NULL,
   obs_time_column = "TIMESTAMP",
   obs_gas_column = NULL,
@@ -26,7 +26,10 @@ wtf_qaqc(
 character; pass NULL to run with no grouping}
 
 \item{flux_column}{Name of the column with flux estimates; defaults to
-"slope_estimate", the output of \code{\link{wtf_compute_fluxes}}}
+"flux_estimate", the output of \code{\link{wtf_compute_fluxes}}}
+
+\item{int_column}{Name of the column with intercept estimates; defaults to
+"int_estimate", the output of \code{\link{wtf_compute_fluxes}}}
 
 \item{r2_column}{Name of the column with adjusted R2 values; defaults to
 "adj.r.squared", the output of \code{\link{wtf_compute_fluxes}}}
@@ -34,8 +37,6 @@ character; pass NULL to run with no grouping}
 \item{time1_column}{time1_column}
 
 \item{time2_column}{time2_column}
-
-\item{int_column}{int_column}
 
 \item{obs_data}{Observational data, optional; a data.frame of concentration
 data from which the \code{flux_data} were computed}
