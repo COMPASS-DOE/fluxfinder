@@ -9,7 +9,8 @@ wtf_metadata_match(data_timestamps, start_dates, start_times, obs_lengths)
 \arguments{
 \item{data_timestamps}{Data timestamps, either character (YYYY-MM-DD HH:MM:SS) or \code{\link{POSIXct}}}
 
-\item{start_dates}{Metadata measurement date entries, either character (YYYY-MM-DD) or \code{\link{POSIXct}}}
+\item{start_dates}{Metadata measurement dates, either character
+(YYYY-MM-DD) or \code{\link{POSIXct}}}
 
 \item{start_times}{Metadata measurement start time entries, either character (HH:MM:SS) or \code{\link[lubridate]{period}}}
 
@@ -26,6 +27,11 @@ and observation length parameters).
 }
 \description{
 Match metadata info with a vector of data timestamps
+}
+\note{
+If \code{data_timestamps} or \code{start_dates} cannot be parsed as
+YYYY-MM-DD, the preferred format, then MM/DD/YYYY (used by U.S. versions of
+Microsoft Excel when saving CSV files, for example) will be tried.
 }
 \examples{
 # Data timestamps
