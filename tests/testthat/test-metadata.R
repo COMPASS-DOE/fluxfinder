@@ -57,7 +57,20 @@ test_that("wtf_metadata_match works", {
   expect_silent(x <- wtf_metadata_match(d_t, s_d, s_t, ol))
   expect_identical(x, c(1, 1, 2, NA_real_))
 
-  # Gives a message if there are unmatched metadata entries
+  # Identical results but prints a message if start_dates are MM/DD/YYYY
+  s_d_mdy <- c("1/1/2024", "1/1/2024")
+  expect_message(y <- wtf_metadata_match(d_t, s_d_mdy, s_t, ol),
+                 regexp = "YYYY-MM-DD format failed for start_dates")
+  expect_identical(x, y)
+
+  # Identical results but prints a message if data_timestamps use MM/DD/YYYY
+  d_t_mdy <- c("1/1/2024 13:00:05", "1/1/2024 13:00:10",
+           "1/1/2024 13:05:05", "1/1/2024 13:10:00")
+  expect_message(y <- wtf_metadata_match(d_t_mdy, s_d, s_t, ol),
+                 regexp = "YYYY-MM-DD HH:MM:SS format failed for data_timestamps")
+  expect_identical(x, y)
+
+  # Prints a message if there are unmatched metadata entries
   s_d <- c("2024-01-01", "2024-01-01", "2024-01-10")
   s_t <- c("13:00:00", "13:05:00", "13:10:00")
   expect_message(wtf_metadata_match(d_t, s_d, s_t, c(60, 60, 60)),
