@@ -3,7 +3,7 @@
 
 <!-- badges: start -->
   ![R-CMD-check](https://github.com/COMPASS-DOE/whattheflux/workflows/R-CMD-check/badge.svg)
-  ![Codecov test coverage](https://codecov.io/gh/COMPASS-DOE/whattheflux/branch/main/graph/badge.svg)
+  [![Codecov test coverage](https://codecov.io/gh/r-lib/covr/branch/master/graph/badge.svg)](https://app.codecov.io/gh/r-lib/covr?branch=master)
 <!-- badges: end -->
 
 The goal of `whattheflux` is to allow users to straightforwardly parse
