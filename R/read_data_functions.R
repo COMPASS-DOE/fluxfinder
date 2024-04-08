@@ -4,12 +4,12 @@
 #'
 #' @param file Filename to read, character
 #' @param model Instrument model name, string
-#' @details The is an internal function used by \code{\link{wtf_read_LI7810}}
-#' and \code{\link{wtf_read_LI7820}}, and not normally called by users.
+#' @details The is an internal function used by \code{\link{ffi_read_LI7810}}
+#' and \code{\link{ffi_read_LI7820}}, and not normally called by users.
 #' @importFrom utils read.table
 #' @importFrom lubridate ymd_hms
 #' @return A \code{\link{data.frame}} with the parsed data.
-wtf_read_LI78x0 <- function(file, model) {
+ffi_read_LI78x0 <- function(file, model) {
 
   dat_raw <- readLines(file)
 
@@ -43,7 +43,7 @@ wtf_read_LI78x0 <- function(file, model) {
   dat$MODEL <- model
   dat$DATE <- dat$TIME <- NULL
 
-  wtf_message(basename(file), ": read ", nrow(dat), " rows of ", sn, " data, ",
+  ffi_message(basename(file), ": read ", nrow(dat), " rows of ", sn, " data, ",
               min(dat$TIMESTAMP), " to ", max(dat$TIMESTAMP), " ", tz)
 
   return(dat)
@@ -56,10 +56,10 @@ wtf_read_LI78x0 <- function(file, model) {
 #' @details Currently LI-7810 and LI-7820 files are handled identically.
 #' @export
 #' @examples
-#' f <- system.file("extdata/TG10-01087.data", package = "whattheflux")
-#' dat <- wtf_read_LI7810(f)
-wtf_read_LI7810 <- function(file) {
-  wtf_read_LI78x0(file, "LI-7810")
+#' f <- system.file("extdata/TG10-01087.data", package = "fluxfinder")
+#' dat <- ffi_read_LI7810(f)
+ffi_read_LI7810 <- function(file) {
+  ffi_read_LI78x0(file, "LI-7810")
 }
 
 #' Read a LI-7820 data file
@@ -69,10 +69,10 @@ wtf_read_LI7810 <- function(file) {
 #' @details Currently LI-7810 and LI-7820 files are handled identically.
 #' @export
 #' @examples
-#' f <- system.file("extdata/TG20-01182.data", package = "whattheflux")
-#' dat <- wtf_read_LI7820(f)
-wtf_read_LI7820 <- function(file) {
-  wtf_read_LI78x0(file, "LI-7820")
+#' f <- system.file("extdata/TG20-01182.data", package = "fluxfinder")
+#' dat <- ffi_read_LI7820(f)
+ffi_read_LI7820 <- function(file) {
+  ffi_read_LI78x0(file, "LI-7820")
 }
 
 
@@ -87,10 +87,10 @@ wtf_read_LI7820 <- function(file) {
 #' made by Los Gatos Research.
 #' @export
 #' @examples
-#' f <- system.file("extdata/LGR-data.csv", package = "whattheflux")
-#' dat <- wtf_read_LGR915(f)
-#' dat <- wtf_read_LGR915(f, tz = "EST") # specify time zone
-wtf_read_LGR915 <- function(file, tz = "UTC") {
+#' f <- system.file("extdata/LGR-data.csv", package = "fluxfinder")
+#' dat <- ffi_read_LGR915(f)
+#' dat <- ffi_read_LGR915(f, tz = "EST") # specify time zone
+ffi_read_LGR915 <- function(file, tz = "UTC") {
   dat_raw <- readLines(file)
 
   # A single header line encodes version number, date, and serial number
@@ -114,10 +114,10 @@ wtf_read_LGR915 <- function(file, tz = "UTC") {
 #' \url{https://www.picarro.com/environmental/products/g2301_gas_concentration_analyzer}
 #' @export
 #' @examples
-#' f <- system.file("extdata/PicarroG2301-data.dat", package = "whattheflux")
-#' dat <- wtf_read_PicarroG2301(f)
-#' dat <- wtf_read_PicarroG2301(f, tz = "EST") # specify time zone
-wtf_read_PicarroG2301 <- function(file, tz = "UTC") {
+#' f <- system.file("extdata/PicarroG2301-data.dat", package = "fluxfinder")
+#' dat <- ffi_read_PicarroG2301(f)
+#' dat <- ffi_read_PicarroG2301(f, tz = "EST") # specify time zone
+ffi_read_PicarroG2301 <- function(file, tz = "UTC") {
 
   dat <- read.table(file, header = TRUE, stringsAsFactors = FALSE)
 
@@ -137,10 +137,10 @@ wtf_read_PicarroG2301 <- function(file, tz = "UTC") {
 #' @importFrom utils read.table
 #' @export
 #' @examples
-#' f <- system.file("extdata/EGM4-data.dat", package = "whattheflux")
-#' dat <- wtf_read_EGM4(f, 2023)
-#' dat <- wtf_read_EGM4(f, 2023, tz = "EST") # specify time zone
-wtf_read_EGM4 <- function(file, year, tz = "UTC") {
+#' f <- system.file("extdata/EGM4-data.dat", package = "fluxfinder")
+#' dat <- ffi_read_EGM4(f, 2023)
+#' dat <- ffi_read_EGM4(f, 2023, tz = "EST") # specify time zone
+ffi_read_EGM4 <- function(file, year, tz = "UTC") {
 
   dat_raw <- readLines(file)
 

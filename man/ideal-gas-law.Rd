@@ -2,13 +2,13 @@
 % Please edit documentation in R/utils.R
 \name{ideal-gas-law}
 \alias{ideal-gas-law}
-\alias{wtf_ppm_to_umol}
-\alias{wtf_ppb_to_nmol}
+\alias{ffi_ppm_to_umol}
+\alias{ffi_ppb_to_nmol}
 \title{Convert gas concentration to quantity using the Ideal Gas Law}
 \usage{
-wtf_ppm_to_umol(ppm, volume, temp, atm)
+ffi_ppm_to_umol(ppm, volume, temp, atm)
 
-wtf_ppb_to_nmol(ppb, volume, temp, atm)
+ffi_ppb_to_nmol(ppb, volume, temp, atm)
 }
 \arguments{
 \item{ppm}{Gas concentration (ppmv), numeric}
@@ -22,8 +22,8 @@ wtf_ppb_to_nmol(ppb, volume, temp, atm)
 \item{ppb}{Gas concentration (ppbv), numeric}
 }
 \value{
-The quantity value, in micromoles (for \code{wtf_ppm_to_umol})
-or nanomoles (for \code{wtf_ppb_to_nmol}).
+The quantity value, in micromoles (for \code{ffi_ppm_to_umol})
+or nanomoles (for \code{ffi_ppb_to_nmol}).
 }
 \description{
 Convert gas concentration to quantity using the Ideal Gas Law
@@ -33,8 +33,8 @@ If \code{temp} and/or \code{atm} are not provided, the defaults
 are NIST normal temperature and pressure.
 }
 \examples{
-wtf_ppm_to_umol(400, 0.1)
-wtf_ppb_to_nmol(400, 0.1)
+ffi_ppm_to_umol(400, 0.1)
+ffi_ppb_to_nmol(400, 0.1)
 }
 \references{
 Steduto et al.:
