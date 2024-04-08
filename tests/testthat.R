@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(whattheflux)
+library(fluxfinder)
 
-test_check("whattheflux")
+test_check("fluxfinder")

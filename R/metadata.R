@@ -30,7 +30,7 @@
 #' s_d <- c("2024-01-01", "2024-01-01")
 #' s_t <- c("13:00:00", "13:05:00")
 #' ol <- c(60, 60) # Observation lengths
-#' wtf_metadata_match(d_t, s_d, s_t, ol)
+#' ffi_metadata_match(d_t, s_d, s_t, ol)
 #' # Returns {1, 1, 2, NA} indicating that the first and second data timestamps
 #' # correspond to metadata entry 1, the third to entry 2, and the fourth
 #' # has no match
@@ -38,9 +38,9 @@
 #' # This generates an error because of overlapping timestamps:
 #' \dontrun{
 #' s_t <- c("13:00:00", "13:01:00")
-#' wtf_metadata_match(d_t, s_d, s_t, ol)
+#' ffi_metadata_match(d_t, s_d, s_t, ol)
 #' }
-wtf_metadata_match <- function(data_timestamps,
+ffi_metadata_match <- function(data_timestamps,
                                start_dates, start_times,
                                obs_lengths) {
 
@@ -67,7 +67,7 @@ wtf_metadata_match <- function(data_timestamps,
     })
   }
   if(all(is.na(data_timestamps))) {
-    wtf_message("YYYY-MM-DD HH:MM:SS format failed for data_timestamps; trying MM/DD/YYYY HH:MM:SS")
+    ffi_message("YYYY-MM-DD HH:MM:SS format failed for data_timestamps; trying MM/DD/YYYY HH:MM:SS")
     data_timestamps <- mdy_hms(d_ts)
   }
   stopifnot(is.POSIXct(data_timestamps))
@@ -80,7 +80,7 @@ wtf_metadata_match <- function(data_timestamps,
     })
   }
   if(all(is.na(start_dates))) {
-    wtf_message("YYYY-MM-DD format failed for start_dates; trying MM/DD/YYYY")
+    ffi_message("YYYY-MM-DD format failed for start_dates; trying MM/DD/YYYY")
     start_dates <- mdy(s_d, tz = tz(data_timestamps))
   }
   stopifnot(is.POSIXct(start_dates))
@@ -117,7 +117,7 @@ wtf_metadata_match <- function(data_timestamps,
   no_matches <- base::setdiff(entries, unique(matches, na.omit(matches)))
   lnm <- length(no_matches)
   if(lnm) {
-    wtf_message(lnm, ifelse(lnm == 1, " entry", " entries"),
+    ffi_message(lnm, ifelse(lnm == 1, " entry", " entries"),
                 " had no timestamp matches!")
   }
 

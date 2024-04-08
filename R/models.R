@@ -21,7 +21,7 @@
 #' robust linear regression model using \code{\link[MASS]{rlm}};
 #' \code{r.squared_poly}, the fraction of variance explained by a
 #' second-order polynomial model, and \code{flux_HM1981}, the flux
-#' computed by \code{\link{wtf_hm1981}} using nonlinear regression based
+#' computed by \code{\link{ffi_hm1981}} using nonlinear regression based
 #' on one-dimensional diffusion theory following
 #' Hutchinson and Mosier (1981) and Nakano et al. (2004).
 #' @md
@@ -31,7 +31,7 @@
 #' only for the linear fit; for robust linear and polynomial, only the slope
 #' and R2 are returned, respectively, as these are intended for QA/QC.
 #' @note Normally this is not called
-#' directly by users, but instead via \code{\link{wtf_compute_fluxes}}.
+#' directly by users, but instead via \code{\link{ffi_compute_fluxes}}.
 #' @references
 #' Nakano, T., Sawamoto, T., Morishita, T., Inoue, G., and Hatano, R.:
 #' A comparison of regression methods for estimating soil–atmosphere diffusion
@@ -47,14 +47,14 @@
 #' @export
 #' @examples
 #' # Toy data
-#' wtf_fit_models(cars$speed, cars$dist)
+#' ffi_fit_models(cars$speed, cars$dist)
 #' # Real data
-#' f <- system.file("extdata/TG10-01087.data", package = "whattheflux")
-#' dat <- wtf_read_LI7810(f)[1:75,] # isolate first observation
+#' f <- system.file("extdata/TG10-01087.data", package = "fluxfinder")
+#' dat <- ffi_read_LI7810(f)[1:75,] # isolate first observation
 #' dat$SECONDS <- dat$SECONDS - min(dat$SECONDS) # normalize time to start at 0
 #' plot(dat$SECONDS, dat$CO2)
-#' wtf_fit_models(dat$SECONDS, dat$CO2)
-wtf_fit_models <- function(time, conc, area, volume) {
+#' ffi_fit_models(dat$SECONDS, dat$CO2)
+ffi_fit_models <- function(time, conc, area, volume) {
   # Basic linear model
   try(mod <- lm(conc ~ time))
   if(!exists("mod")) {
@@ -94,9 +94,9 @@ wtf_fit_models <- function(time, conc, area, volume) {
   })
 
   # Add slope computed using Hutchinson and Mosier (1981) nonlinear regression
-  slope_stats$flux_HM1981 <- wtf_hm1981(time, conc)
+  slope_stats$flux_HM1981 <- ffi_hm1981(time, conc)
   if(!is.na(slope_stats$flux_HM1981)) {
-    wtf_message("NOTE: flux_HM1981 is non-NA, implying nonlinear data")
+    ffi_message("NOTE: flux_HM1981 is non-NA, implying nonlinear data")
   }
 
   # Combine and return
@@ -118,10 +118,10 @@ wtf_fit_models <- function(time, conc, area, volume) {
 #' 1981. \url{http://dx.doi.org/10.2136/sssaj1981.03615995004500020017x}
 #' @examples
 #' # If data are approximately linear, then NA is returned
-#' wtf_hm1981(cars$speed, cars$dist)
+#' ffi_hm1981(cars$speed, cars$dist)
 #' # If data are nonlinear (saturating) then flux based on gas diffusion theory
-#' wtf_hm1981(Puromycin$conc, Puromycin$rate)
-wtf_hm1981 <- function(time, conc, h = 1) {
+#' ffi_hm1981(Puromycin$conc, Puromycin$rate)
+ffi_hm1981 <- function(time, conc, h = 1) {
   # Compute slope using Hutchinson and Mosier (1981) nonlinear technique
   vals <- approx(time, conc, xout = c(min(time), mean(time), max(time)), ties = mean)$y
   C0 <- vals[1]
@@ -146,7 +146,7 @@ wtf_hm1981 <- function(time, conc, h = 1) {
 #' @return A numeric vector of normalized values (if \code{normalize_time} is
 #' TRUE) or the original vector if not.
 #' @keywords internal
-wtf_normalize_time <- function(time, normalize = TRUE) {
+ffi_normalize_time <- function(time, normalize = TRUE) {
   if(normalize) {
     as.numeric(time) - as.numeric(min(time, na.rm = TRUE))
   } else {
@@ -167,28 +167,28 @@ wtf_normalize_time <- function(time, normalize = TRUE) {
 #' beginning of the time series during which data are ignore, in seconds (numeric)
 #' @param normalize_time Normalize the values so that first is zero? Logical
 #' @param fit_function Optional flux-fit function;
-#' default is \code{\link{wtf_fit_models}}
+#' default is \code{\link{ffi_fit_models}}
 #' @param ... Other parameters passed to \code{fit_function}
 #' @return A data.frame with one row per \code{group_column} value. It will
 #' always include the mean, minimum, and maximum values of \code{time_column}
 #' for that group, but other
 #' columns depend on what is returned by the \code{fit_function}.
-#' @seealso \code{\link{wtf_fit_models}}
+#' @seealso \code{\link{ffi_fit_models}}
 #' @export
 #' @examples
 #' # No grouping
-#' wtf_compute_fluxes(cars, group_column = NULL, "speed", "dist")
+#' ffi_compute_fluxes(cars, group_column = NULL, "speed", "dist")
 #' # With grouping
 #' cars$Plot <- c("A", "B")
-#' wtf_compute_fluxes(cars, "Plot", "speed", "dist")
+#' ffi_compute_fluxes(cars, "Plot", "speed", "dist")
 #' # See the introductory vignette for a fully-worked example with real data
-wtf_compute_fluxes <- function(data,
+ffi_compute_fluxes <- function(data,
                                group_column,
                                time_column,
                                gas_column,
                                dead_band = 0,
                                normalize_time = TRUE,
-                               fit_function = wtf_fit_models,
+                               fit_function = ffi_fit_models,
                                ...) {
 
   # Convert to a data.frame so that we can be sure column-selection code
@@ -205,7 +205,7 @@ wtf_compute_fluxes <- function(data,
   # Compute flux for each sample
   # passing volume and area?
   f <- function(x, ...) {
-    x$.norm_time <- wtf_normalize_time(x[,time_column], normalize_time)
+    x$.norm_time <- ffi_normalize_time(x[,time_column], normalize_time)
     x <- x[x$.norm_time >= dead_band,] # exclude dead band data
     out <- fit_function(x$.norm_time, x[,gas_column], ...)
     out[time_column] <- mean(x[,time_column])

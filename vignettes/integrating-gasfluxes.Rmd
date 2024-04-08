@@ -14,12 +14,12 @@ knitr::opts_chunk$set(
 )
 ```
 
-As noted in the [introductory vignette](intro-to-whattheflux.html), there are
+As noted in the [introductory vignette](intro-to-fluxfinder.html), there are
 many reasons why greenhouse gas concentration observations might not be
 well fit by a linear model: diffusion effects, saturation, mixing problems, 
 etc. 
 
-The `whattheflux` package provides extensive outputs based on linear
+The `fluxfinder` package provides extensive outputs based on linear
 model fits, and a few QA/QC indicators based on a polynomial model, but there
 are cases where we might want to take advantage of more sophisticated
 model-fitting routines.
@@ -27,15 +27,15 @@ model-fitting routines.
 ## Some problematic sample data
 
 ```{r setup}
-library(whattheflux)
+library(fluxfinder)
 
 # Load the data
 # Data from a LI-7810
-f <- system.file("extdata/TG10-01087-curvature.data", package = "whattheflux")
-dat <- wtf_read_LI7810(f)
+f <- system.file("extdata/TG10-01087-curvature.data", package = "fluxfinder")
+dat <- ffi_read_LI7810(f)
 
 # Fit a linear flux and QA/QC it
-flux <- wtf_compute_fluxes(dat, group_column = NULL, time_column = "TIMESTAMP", gas_column = "CO2")
+flux <- ffi_compute_fluxes(dat, group_column = NULL, time_column = "TIMESTAMP", gas_column = "CO2")
 print(flux$flux_estimate)
 print(flux$adj.r.squared)
 print(flux$r.squared_poly)
@@ -86,7 +86,7 @@ gasfluxes(dat, .times = "SECONDS", .C = "CO2", plot = FALSE)
 ```
 
 `gasfluxes` will compute on multiple groups (measurements) via its `.id`
-parameter, but we can also use use `whattheflux::wtf_compute_fluxes()` to
+parameter, but we can also use use `fluxfinder::ffi_compute_fluxes()` to
 handle the grouping and let it call `gasfluxes`:
 
 ```{r}
@@ -97,12 +97,12 @@ f <- function(time, conc) {
   gasfluxes(d, plot = FALSE)
 }
 
-wtf_compute_fluxes(dat, NULL, "SECONDS", "CO2", fit_function = f)
+ffi_compute_fluxes(dat, NULL, "SECONDS", "CO2", fit_function = f)
 ```
 
 ## Conclusion
 
-This vignette covered how to integrate `gasfluxes` with `whattheflux`, if
+This vignette covered how to integrate `gasfluxes` with `fluxfinder`, if
 you want to take advantage of the former package's HMR or NDFE routines.
 More information on these models can be found in:
 
