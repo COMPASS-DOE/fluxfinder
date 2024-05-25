@@ -28,13 +28,31 @@ test_that("ffi_read_LGR works", {
 
   withr::local_options(list(fluxfinder.quiet = TRUE))
 
-  # Good data
-  x <- ffi_read_LGR915("data/LGR-good-data.csv")
+  # Good data (1) - month-day-year
+  expect_warning(ffi_read_LGR915("data/LGR-good-data-mdy.csv"),
+                 regexp = "date_format not provided")
+  x <- ffi_read_LGR915("data/LGR-good-data-mdy.csv", date_format = "MDY")
   expect_s3_class(x, "data.frame")
+  expect_true(lubridate::month(x[1,1]) == 5)
   expect_true("MODEL" %in% names(x))
   expect_true("SN" %in% names(x)) # parsed serial number from header
+
+  # Good data (2) - day-month-year
+  x <- ffi_read_LGR915("data/LGR-good-data-dmy.txt", date_format = "DMY")
+  expect_s3_class(x, "data.frame")
+  expect_identical(nrow(x), 5L)
+  expect_true(lubridate::month(x[1,1]) == 4)
+  expect_true("MODEL" %in% names(x))
+  expect_true("SN" %in% names(x)) # parsed serial number from header
+
+  # Good data (2) - with PGP block
+  x <- ffi_read_LGR915("data/LGR-good-data-pgp.txt", date_format = "DMY")
+  expect_s3_class(x, "data.frame")
+  expect_identical(nrow(x), 4L)
+
   # Respects time zone setting
-  x <- ffi_read_LGR915("data/LGR-good-data.csv", tz = "EST")
+  x <- ffi_read_LGR915("data/LGR-good-data-mdy.csv",
+                       date_format = "MDY", tz = "EST")
   expect_true(all(tz(x$Time) == "EST"))
 })
 

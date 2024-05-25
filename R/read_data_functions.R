@@ -79,27 +79,58 @@ ffi_read_LI7820 <- function(file) {
 #' Read a LGR 915-0011 data file
 #'
 #' @param file Filename to read, character
+#' @param date_format Date format, character: "MDY" (month-day-year)
+#' "DMY" (day-month-year), or "YMD" (year-month-day)
 #' @param tz Time zone of the file's time data, character (optional)
 #' @return A \code{\link{data.frame}} with the parsed data.
-#' @importFrom lubridate mdy_hms
+#' @importFrom lubridate dmy_hms mdy_hms ymd_hms
 #' @importFrom utils read.csv
-#' @details The LGR 915-0011 was an Ultra-Portable Greenhouse Gas Analyzer
-#' made by Los Gatos Research.
+#' @details The LGR 915-0011 was an Ultra-Portable Greenhouse Gas Analyzer made
+#' by Los Gatos Research. The date in its output files can appear in different
+#' formats, which is why the \code{date_format} parameter is needed.
+#' @note Some LGR 915 files can have a PGP block at the end; this is ignored.
 #' @export
 #' @examples
 #' f <- system.file("extdata/LGR-data.csv", package = "fluxfinder")
-#' dat <- ffi_read_LGR915(f)
-#' dat <- ffi_read_LGR915(f, tz = "EST") # specify time zone
-ffi_read_LGR915 <- function(file, tz = "UTC") {
+#' dat <- ffi_read_LGR915(f, date_format = "MDY")
+#' dat <- ffi_read_LGR915(f, date_format = "MDY", tz = "EST") # specify time zone
+ffi_read_LGR915 <- function(file, date_format = "DMY", tz = "UTC") {
+
+  if(missing(date_format)) {
+    warning("date_format not provided; assuming ", date_format)
+  }
+
   dat_raw <- readLines(file)
+
+  # Some of the samples files that we have seen contain a PGP encoded block
+  # at their end, which is bizarre. Check for this and ignore
+  pgp <- grep("BEGIN PGP MESSAGE", dat_raw, fixed = TRUE)
+  if(length(pgp) > 0) {
+    lastline <- pgp[1] - 2
+  } else { # no PGP block
+    lastline <- length(dat_raw)
+  }
 
   # A single header line encodes version number, date, and serial number
   dat <- read.csv(textConnection(dat_raw[-1]),
                   check.names = FALSE,
-                  stringsAsFactors = FALSE)
-  dat$Time <- mdy_hms(dat$Time, tz = tz)
-  dat$SN <- trimws(gsub(".*SN:", "", dat_raw[1]))
-  dat$MODEL <- "915-0011"
+                  stringsAsFactors = FALSE,
+                  blank.lines.skip = TRUE,
+                  nrows = lastline - 2) # 2 header rows
+
+  # The first column can be named either "Time" or "SysTime", and can be
+  # MM/DD/YYYY or DD/MM/YYYY. What a TERRIBLE decision decision, LGR :(
+  if(date_format == "DMY") {
+    dat[1] <- dmy_hms(dat[,1], tz = tz)
+  } else if(date_format == "MDY") {
+    dat[1] <- mdy_hms(dat[,1], tz = tz)
+  } else if(date_format == "YMD") {
+    dat[1] <- ymd_hms(dat[,1], tz = tz)
+  } else stop("Unknown date_format")
+
+  sn <- regexpr("SN:[A-Z0-9-]*", dat_raw[1])
+  dat$SN <- substr(dat_raw[1], sn + nchar("SN:"), sn + attr(sn, "match.length"))
+  dat$MODEL <- "LGR915"
   return(dat)
 }
 
