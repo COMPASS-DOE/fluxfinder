@@ -4,10 +4,13 @@
 \alias{ffi_read_LGR915}
 \title{Read a LGR 915-0011 data file}
 \usage{
-ffi_read_LGR915(file, tz = "UTC")
+ffi_read_LGR915(file, date_format = "DMY", tz = "UTC")
 }
 \arguments{
 \item{file}{Filename to read, character}
+
+\item{date_format}{Date format, character: "MDY" (month-day-year)
+"DMY" (day-month-year), or "YMD" (year-month-day)}
 
 \item{tz}{Time zone of the file's time data, character (optional)}
 }
@@ -18,11 +21,15 @@ A \code{\link{data.frame}} with the parsed data.
 Read a LGR 915-0011 data file
 }
 \details{
-The LGR 915-0011 was an Ultra-Portable Greenhouse Gas Analyzer
-made by Los Gatos Research.
+The LGR 915-0011 was an Ultra-Portable Greenhouse Gas Analyzer made
+by Los Gatos Research. The date in its output files can appear in different
+formats, which is why the \code{date_format} parameter is needed.
+}
+\note{
+Some LGR 915 files can have a PGP block at the end; this is ignored.
 }
 \examples{
 f <- system.file("extdata/LGR-data.csv", package = "fluxfinder")
-dat <- ffi_read_LGR915(f)
-dat <- ffi_read_LGR915(f, tz = "EST") # specify time zone
+dat <- ffi_read_LGR915(f, date_format = "MDY")
+dat <- ffi_read_LGR915(f, date_format = "MDY", tz = "EST") # specify time zone
 }
