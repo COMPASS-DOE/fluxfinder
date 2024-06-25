@@ -17,6 +17,7 @@ Encoding: UTF-8
 LazyData: true
 Imports:
     broom (>= 1.0),
+    jsonlite (>= 1.8),
     lubridate (>= 1.0),
     MASS (>= 7.0)
 Suggests: 

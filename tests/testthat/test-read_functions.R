@@ -88,3 +88,13 @@ test_that("ffi_read_EGM4 works", {
   expect_error(ffi_read_EGM4("data/EGM4-bad-data.dat"),
                regexp = "does not look like")
 })
+
+test_that("ffi_read_LIsmartchamber works", {
+
+  withr::local_options(list(fluxfinder.quiet = TRUE))
+
+  # Good data
+  x <- ffi_read_LIsmartchamber("data/LI8200-01S-good-data.json")
+  expect_s3_class(x, "data.frame")
+  expect_s3_class(x$TIMESTAMP, "POSIXct")
+})
