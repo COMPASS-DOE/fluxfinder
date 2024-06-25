@@ -204,6 +204,8 @@ ffi_read_EGM4 <- function(file, year, tz = "UTC") {
 #' Read a LI-8200-01S (smart chamber) data file
 #'
 #' @param file Filename to read, character
+#' @param concentrations Return concentration data (the default), or
+#' just summary information? Logical
 #' @return A \code{\link{data.frame}} with the parsed data.
 #' @importFrom jsonlite read_json
 #' @importFrom lubridate ymd_hms
@@ -212,8 +214,9 @@ ffi_read_EGM4 <- function(file, year, tz = "UTC") {
 #' @export
 #' @examples
 #' f <- system.file("extdata/LI8200-01S.json", package = "fluxfinder")
-#' dat <- ffi_read_LIsmartchamber(f)
-ffi_read_LIsmartchamber <- function(file) {
+#' dat <- ffi_read_LIsmartchamber(f) # returns 240 rows
+#' ffi_read_LIsmartchamber(f, concentrations = FALSE) # only 4 rows
+ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
 
   dat_raw <- jsonlite::read_json(file)
 
@@ -235,12 +238,16 @@ ffi_read_LIsmartchamber <- function(file) {
       # dead band, volume, etc. Store as a 1-row data frame
       header_df <- as.data.frame(repdat$header)
 
-      # Convert main observational data into a data frame
-      data_info <- list()
-      for(i in names(repdat$data)) {
-        data_info[[i]] <- unlist(repdat$dat[[i]])
+      if(concentrations) {
+        # Convert main observational data into a data frame
+        data_info <- list()
+        for(i in names(repdat$data)) {
+          data_info[[i]] <- unlist(repdat$dat[[i]])
+        }
+        data_df <- as.data.frame(data_info)
+      } else {
+        data_df <- data.frame(timestamp = 1) # this will get deleted below
       }
-      data_df <- as.data.frame(data_info)
 
       # Convert footer flux info into a 1-row data frame
       footer_info <- list()
@@ -261,7 +268,9 @@ ffi_read_LIsmartchamber <- function(file) {
 
   # Combine everything into a single data frame
   out <- do.call("rbind", final_dat)
-  out$TIMESTAMP <- ymd_hms(out$Date, tz = out$TimeZone[1]) + out$timestamp
+  if(concentrations) {
+    out$TIMESTAMP <- ymd_hms(out$Date, tz = out$TimeZone[1]) + out$timestamp
+  }
   out$timestamp <- NULL # to avoid confusion
   out
 }

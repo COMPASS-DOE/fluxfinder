@@ -96,5 +96,13 @@ test_that("ffi_read_LIsmartchamber works", {
   # Good data
   x <- ffi_read_LIsmartchamber("data/LI8200-01S-good-data.json")
   expect_s3_class(x, "data.frame")
+  expect_true("TIMESTAMP" %in% names(x))
   expect_s3_class(x$TIMESTAMP, "POSIXct")
+
+  # Read fluxes only, no concentrations
+  x <- ffi_read_LIsmartchamber("data/LI8200-01S-good-data.json",
+                               concentrations = FALSE)
+  expect_s3_class(x, "data.frame")
+  expect_identical(nrow(x), 4L) # test data has 2 obs x 2 reps
+  expect_false("TIMESTAMP" %in% names(x))
 })
