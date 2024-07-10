@@ -200,3 +200,77 @@ ffi_read_EGM4 <- function(file, year, tz = "UTC") {
 
   return(dat)
 }
+
+#' Read a LI-8200-01S (smart chamber) data file
+#'
+#' @param file Filename to read, character
+#' @param concentrations Return concentration data (the default), or
+#' just summary information? Logical
+#' @return A \code{\link{data.frame}} with the parsed data.
+#' @importFrom jsonlite read_json
+#' @importFrom lubridate ymd_hms
+#' @note These files are in \href{https://www.json.org/json-en.html}{JSON} format.
+#' See also \url{https://www.licor.com/env/products/soil-flux/smart-chamber}.
+#' @export
+#' @examples
+#' f <- system.file("extdata/LI8200-01S.json", package = "fluxfinder")
+#' dat <- ffi_read_LIsmartchamber(f) # returns 240 rows
+#' ffi_read_LIsmartchamber(f, concentrations = FALSE) # only 4 rows
+ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
+
+  dat_raw <- jsonlite::read_json(file)
+
+  final_dat <- list()
+
+  # Loop through all observations (e.g., collars)
+  for(obs in seq_along(dat_raw$datasets)) {
+    ffi_message("Reading observation ", obs)
+    dat <- dat_raw$datasets[[obs]][[1]]
+
+    # Loop through all repetitions within an observation
+    for(rep in seq_along(dat$reps)) {
+      # Info on observation and rep
+      rep_df <- data.frame(obs = obs, rep = rep)
+
+      repdat <- dat$reps[[rep]]
+
+      # The header section contains information on instrument,
+      # dead band, volume, etc. Store as a 1-row data frame
+      header_df <- as.data.frame(repdat$header)
+
+      if(concentrations) {
+        # Convert main observational data into a data frame
+        data_info <- list()
+        for(i in names(repdat$data)) {
+          data_info[[i]] <- unlist(repdat$dat[[i]])
+        }
+        data_df <- as.data.frame(data_info)
+      } else {
+        data_df <- data.frame(timestamp = 1) # this will get deleted below
+      }
+
+      # Convert footer flux info into a 1-row data frame
+      footer_info <- list()
+      for(i in seq_along(repdat$footer$fluxes)) {
+        fdf <- repdat$footer$fluxes[[i]]
+        gasname <- fdf$name
+        fdf$name <- NULL
+        names(fdf) <- paste(gasname, names(fdf), sep = "_")
+        footer_info[[i]] <- as.data.frame(fdf)
+      }
+      footer_df <- as.data.frame(footer_info)
+
+      # Combine and store; note that the 1-row data frames get
+      # replicated to have as many rows as the data
+      final_dat[[paste(obs, rep)]] <- cbind(rep_df, header_df, data_df, footer_df)
+    }
+  }
+
+  # Combine everything into a single data frame
+  out <- do.call("rbind", final_dat)
+  if(concentrations) {
+    out$TIMESTAMP <- ymd_hms(out$Date, tz = out$TimeZone[1]) + out$timestamp
+  }
+  out$timestamp <- NULL # to avoid confusion
+  out
+}
