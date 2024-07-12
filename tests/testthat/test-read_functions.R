@@ -117,6 +117,11 @@ test_that("ffi_read_LI850 works", {
   expect_true("TIMESTAMP" %in% names(x))
   expect_s3_class(x$TIMESTAMP, "POSIXct")
 
+  # Time zone
+  expect_identical(lubridate::tz(x$TIMESTAMP), "UTC")
+  x <- ffi_read_LI850("data/LI850-good-data.txt", tz = "EST")
+  expect_identical(lubridate::tz(x$TIMESTAMP), "EST")
+
   # Bad data
   expect_error(ffi_read_LI850("data/LI850-bad-data1.txt"),
                regexp = "unexpected header")
