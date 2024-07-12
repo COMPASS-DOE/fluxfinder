@@ -27,3 +27,6 @@ f <- system.file("extdata/LI8200-01S.json", package = "fluxfinder")
 dat <- ffi_read_LIsmartchamber(f) # returns 240 rows
 ffi_read_LIsmartchamber(f, concentrations = FALSE) # only 4 rows
 }
+\author{
+Ben Bond-Lamberty
+}

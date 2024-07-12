@@ -212,6 +212,7 @@ ffi_read_EGM4 <- function(file, year, tz = "UTC") {
 #' @note These files are in \href{https://www.json.org/json-en.html}{JSON} format.
 #' See also \url{https://www.licor.com/env/products/soil-flux/smart-chamber}.
 #' @export
+#' @author Ben Bond-Lamberty
 #' @examples
 #' f <- system.file("extdata/LI8200-01S.json", package = "fluxfinder")
 #' dat <- ffi_read_LIsmartchamber(f) # returns 240 rows
