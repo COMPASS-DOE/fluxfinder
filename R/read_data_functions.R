@@ -212,6 +212,7 @@ ffi_read_EGM4 <- function(file, year, tz = "UTC") {
 #' @note These files are in \href{https://www.json.org/json-en.html}{JSON} format.
 #' See also \url{https://www.licor.com/env/products/soil-flux/smart-chamber}.
 #' @export
+#' @author Ben Bond-Lamberty
 #' @examples
 #' f <- system.file("extdata/LI8200-01S.json", package = "fluxfinder")
 #' dat <- ffi_read_LIsmartchamber(f) # returns 240 rows
@@ -230,7 +231,9 @@ ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
     # Loop through all repetitions within an observation
     for(rep in seq_along(dat$reps)) {
       # Info on observation and rep
-      rep_df <- data.frame(obs = obs, rep = rep)
+      rep_df <- data.frame(label = names(dat_raw$datasets[[obs]]),
+                           obs = obs,
+                           rep = rep)
 
       repdat <- dat$reps[[rep]]
 
