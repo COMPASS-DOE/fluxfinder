@@ -1,0 +1,5 @@
+not a good first line
+System_Date_(Y-M-D)	System_Time_(h:m:s)	CO₂_(µmol_mol⁻¹)	H₂O_(mmol_mol⁻¹)	H₂O_(°C)	Cell_Temperature_(°C)	Cell_Pressure_(kPa)	CO₂_Absorption	H₂O_Absorption	Input_Voltage_(V)	Flow_Rate_(L_min⁻¹)	
+2024-07-01	11:16:43	4.19765e2	1.44608e1	1.26817e1	5.14769e1	1.01801e2	9.7558794e-2	9.6321697e-2	2.0121445e1	7.1574015e-1	
+2024-07-01	11:16:43	4.19967e2	1.44839e1	1.27080e1	5.14736e1	1.01813e2	9.7605466e-2	9.6439304e-2	2.0127320e1	7.0536355e-1	
+2024-07-01	11:16:44	4.17150e2	1.44778e1	1.27004e1	5.14736e1	1.01806e2	9.7129402e-2	9.6404733e-2	2.0115571e1	7.1629571e-1	

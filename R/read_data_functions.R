@@ -277,3 +277,38 @@ ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
   out$timestamp <- NULL # to avoid confusion
   out
 }
+
+#' Read a LI-850 data file
+#'
+#' @param file Filename to read, character
+#' @param tz Time zone of the file's time data, character (optional)
+#' @return A \code{\link{data.frame}} with the parsed data, including a
+#' \code{TIMESTAMP} column.
+#' @importFrom lubridate ymd_hm
+#' @importFrom utils read.table
+#' @export
+#' @examples
+#' f <- system.file("extdata/LI850.txt", package = "fluxfinder")
+#' dat <- ffi_read_LI850(f)
+#' dat <- ffi_read_LI850(f, tz = "EST") # specify time zone
+ffi_read_LI850 <- function(file, tz = "UTC") {
+
+  line1 <- readLines(file, n = 1)
+
+  if(!grepl("at", line1)) {
+    stop("This does not look like a LI-850 file! (unexpected header)")
+  }
+
+  dat <- read.table(file, skip = 2, header = TRUE)
+  if(ncol(dat) != 11) {
+    stop("This does not look like a LI-850 file! (incorrect columns)")
+  }
+
+  names(dat) <- c("System_Date", "System_Time", "CO2", "H2O", "H2O_C",
+                      "Cell_Temperature", "Cell_Pressure", "CO2_Absorption",
+                      "H2O_Absorption", "Input_Voltage", "Flow_Rate")
+
+  dat$MODEL <- "LI-850"
+  dat$TIMESTAMP <- ymd_hms(paste(dat$System_Date, dat$System_Time), tz = tz)
+  return(dat)
+}
