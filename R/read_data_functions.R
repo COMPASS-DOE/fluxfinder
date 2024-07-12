@@ -230,7 +230,9 @@ ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
     # Loop through all repetitions within an observation
     for(rep in seq_along(dat$reps)) {
       # Info on observation and rep
-      rep_df <- data.frame(obs = obs, rep = rep)
+      rep_df <- data.frame(label = names(dat_raw$datasets[[obs]]),
+                           obs = obs,
+                           rep = rep)
 
       repdat <- dat$reps[[rep]]
 
