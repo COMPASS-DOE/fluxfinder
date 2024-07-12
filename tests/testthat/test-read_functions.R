@@ -106,3 +106,20 @@ test_that("ffi_read_LIsmartchamber works", {
   expect_identical(nrow(x), 4L) # test data has 2 obs x 2 reps
   expect_false("TIMESTAMP" %in% names(x))
 })
+
+test_that("ffi_read_LI850 works", {
+
+  withr::local_options(list(fluxfinder.quiet = TRUE))
+
+  # Good data
+  x <- ffi_read_LI850("data/LI850-good-data.txt")
+  expect_s3_class(x, "data.frame")
+  expect_true("TIMESTAMP" %in% names(x))
+  expect_s3_class(x$TIMESTAMP, "POSIXct")
+
+  # Bad data
+  expect_error(ffi_read_LI850("data/LI850-bad-data1.txt"),
+               regexp = "unexpected header")
+  expect_error(ffi_read_LI850("data/LI850-bad-data2.txt"),
+               regexp = "incorrect columns")
+})
