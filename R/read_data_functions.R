@@ -285,8 +285,6 @@ ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
       # Combine and store; note that the 1-row data frames get
       # replicated to have as many rows as the data
       final_dat[[paste(obs, rep)]] <- cbind(rep_df, header_df, data_df, footer_df)
-
-
     }
   }
 
