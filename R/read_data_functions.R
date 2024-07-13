@@ -225,13 +225,14 @@ ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
 
   # Loop through all observations (e.g., collars)
   for(obs in seq_along(dat_raw$datasets)) {
-    ffi_message("Reading observation ", obs)
+    label <- names(dat_raw$datasets[[obs]])
+    ffi_message("Reading observation ", obs, " label ", label)
     dat <- dat_raw$datasets[[obs]][[1]]
 
     # Loop through all repetitions within an observation
     for(rep in seq_along(dat$reps)) {
       # Info on observation and rep
-      rep_df <- data.frame(label = names(dat_raw$datasets[[obs]]),
+      rep_df <- data.frame(label = label,
                            obs = obs,
                            rep = rep)
 
@@ -252,7 +253,7 @@ ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
         # Sometimes the Smart Chamber doesn't record any data
         if(nrow(data_df) == 0) {
           warning("There are 0-row data in ", basename(file), " at observation ",
-                  obs, " label ", rep_df$label)
+                  obs, " label ", label)
           data_df <- data.frame(timestamp = NA,
                                 chamber_p = NA,
                                 chamber_p_t = NA,
