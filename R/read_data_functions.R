@@ -251,7 +251,8 @@ ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
 
         # Sometimes the Smart Chamber doesn't record any data
         if(nrow(data_df) == 0) {
-          warning("There are 0-row data in this file at observation ", obs)
+          warning("There are 0-row data in ", basename(file), " at observation ",
+                  obs, " label ", rep_df$label)
           data_df <- data.frame(timestamp = NA,
                                 chamber_p = NA,
                                 chamber_p_t = NA,
