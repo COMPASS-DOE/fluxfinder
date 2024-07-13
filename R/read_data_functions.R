@@ -196,7 +196,7 @@ ffi_read_EGM4 <- function(file, year, tz = "UTC") {
   dat$TIMESTAMP <- ymd_hm(paste(
     paste(year, dat$Month, dat$Day, sep = "-"),
     paste(dat$Hour, dat$Min, sep = ":")
-    ), tz = tz)
+  ), tz = tz)
 
   return(dat)
 }
@@ -225,13 +225,14 @@ ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
 
   # Loop through all observations (e.g., collars)
   for(obs in seq_along(dat_raw$datasets)) {
-    ffi_message("Reading observation ", obs)
+    label <- names(dat_raw$datasets[[obs]])
+    ffi_message("Reading observation ", obs, " label ", label)
     dat <- dat_raw$datasets[[obs]][[1]]
 
     # Loop through all repetitions within an observation
     for(rep in seq_along(dat$reps)) {
       # Info on observation and rep
-      rep_df <- data.frame(label = names(dat_raw$datasets[[obs]]),
+      rep_df <- data.frame(label = label,
                            obs = obs,
                            rep = rep)
 
@@ -248,8 +249,26 @@ ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
           data_info[[i]] <- unlist(repdat$dat[[i]])
         }
         data_df <- as.data.frame(data_info)
+
+        # Sometimes the Smart Chamber doesn't record any data
+        if(nrow(data_df) == 0) {
+          warning("There are 0-row data in ", basename(file), " at observation ",
+                  obs, " label ", label)
+          data_df <- data.frame(timestamp = NA,
+                                chamber_p = NA,
+                                chamber_p_t = NA,
+                                chamber_t = NA,
+                                soil_t = NA,
+                                soilp_c = NA,
+                                soilp_m = NA,
+                                soilp_t = NA,
+                                ch4 = NA,
+                                co2 = NA,
+                                h2o = NA,
+                                err = NA)
+        }
       } else {
-        data_df <- data.frame(timestamp = 1) # this will get deleted below
+        data_df <- data.frame(timestamp = NA) # this will get deleted below
       }
 
       # Convert footer flux info into a 1-row data frame
@@ -273,8 +292,11 @@ ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
   out <- do.call("rbind", final_dat)
   if(concentrations) {
     out$TIMESTAMP <- ymd_hms(out$Date, tz = out$TimeZone[1]) + out$timestamp
+    out$timestamp <- out$Date <- NULL # to avoid confusion
+  } else {
+    out$TIMESTAMP <- ymd_hms(out$Date, tz = out$TimeZone[1])
+    out$Date <- NULL # to avoid confusion
   }
-  out$timestamp <- NULL # to avoid confusion
   out
 }
 
@@ -305,8 +327,8 @@ ffi_read_LI850 <- function(file, tz = "UTC") {
   }
 
   names(dat) <- c("System_Date", "System_Time", "CO2", "H2O", "H2O_C",
-                      "Cell_Temperature", "Cell_Pressure", "CO2_Absorption",
-                      "H2O_Absorption", "Input_Voltage", "Flow_Rate")
+                  "Cell_Temperature", "Cell_Pressure", "CO2_Absorption",
+                  "H2O_Absorption", "Input_Voltage", "Flow_Rate")
 
   dat$MODEL <- "LI-850"
   dat$TIMESTAMP <- ymd_hms(paste(dat$System_Date, dat$System_Time), tz = tz)

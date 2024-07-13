@@ -104,7 +104,12 @@ test_that("ffi_read_LIsmartchamber works", {
                                concentrations = FALSE)
   expect_s3_class(x, "data.frame")
   expect_identical(nrow(x), 4L) # test data has 2 obs x 2 reps
-  expect_false("TIMESTAMP" %in% names(x))
+  expect_true("TIMESTAMP" %in% names(x))
+  expect_s3_class(x$TIMESTAMP, "POSIXct")
+
+  # Bad data with no concentration data
+  expect_warning(ffi_read_LIsmartchamber("data/LI8200-01S-bad-data.json"),
+                 regexp = "0-row data")
 })
 
 test_that("ffi_read_LI850 works", {
