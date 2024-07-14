@@ -226,15 +226,15 @@ ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
   # Loop through all observations (e.g., collars)
   for(obs in seq_along(dat_raw$datasets)) {
     label <- names(dat_raw$datasets[[obs]])
+    remark <- dat_raw$datasets[[obs]][[1]]$remark
+
     ffi_message("Reading observation ", obs, " label ", label)
     dat <- dat_raw$datasets[[obs]][[1]]
 
     # Loop through all repetitions within an observation
     for(rep in seq_along(dat$reps)) {
       # Info on observation and rep
-      rep_df <- data.frame(label = label,
-                           obs = obs,
-                           rep = rep)
+      rep_df <- data.frame(label = label, obs = obs, remark = remark)
 
       repdat <- dat$reps[[rep]]
 
@@ -254,6 +254,7 @@ ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
         if(nrow(data_df) == 0) {
           warning("There are 0-row data in ", basename(file), " at observation ",
                   obs, " label ", label)
+          # Ugh: this will break if Licor changes the format at all
           data_df <- data.frame(timestamp = NA,
                                 chamber_p = NA,
                                 chamber_p_t = NA,
