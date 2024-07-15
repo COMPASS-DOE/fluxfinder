@@ -293,11 +293,10 @@ ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
   out <- do.call("rbind", final_dat)
   if(concentrations) {
     out$TIMESTAMP <- ymd_hms(out$Date, tz = out$TimeZone[1]) + out$timestamp
-    out$timestamp <- out$Date <- NULL # to avoid confusion
   } else {
     out$TIMESTAMP <- ymd_hms(out$Date, tz = out$TimeZone[1])
-    out$Date <- NULL # to avoid confusion
   }
+  out$timestamp <- out$Date <- NULL # to avoid confusion
   out
 }
 
