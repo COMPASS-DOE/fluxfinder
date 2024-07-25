@@ -242,34 +242,41 @@ ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
       # dead band, volume, etc. Store as a 1-row data frame
       header_df <- as.data.frame(repdat$header)
 
-      if(concentrations) {
-        # Convert main observational data into a data frame
-        data_info <- list()
-        for(i in names(repdat$data)) {
-          data_info[[i]] <- unlist(repdat$dat[[i]])
-        }
-        data_df <- as.data.frame(data_info)
+      # Convert main observational data into a data frame
+      data_info <- list()
+      for(i in names(repdat$data)) {
+        data_info[[i]] <- unlist(repdat$dat[[i]])
+      }
+      data_df <- as.data.frame(data_info)
 
-        # Sometimes the Smart Chamber doesn't record any data
-        if(nrow(data_df) == 0) {
-          warning("There are 0-row data in ", basename(file), " at observation ",
-                  obs, " label ", label)
-          # Ugh: this will break if Licor changes the format at all
-          data_df <- data.frame(timestamp = NA,
-                                chamber_p = NA,
-                                chamber_p_t = NA,
-                                chamber_t = NA,
-                                soil_t = NA,
-                                soilp_c = NA,
-                                soilp_m = NA,
-                                soilp_t = NA,
-                                ch4 = NA,
-                                co2 = NA,
-                                h2o = NA,
-                                err = NA)
-        }
-      } else {
-        data_df <- data.frame(timestamp = NA) # this will get deleted below
+      # Sometimes the Smart Chamber doesn't record any data
+      if(nrow(data_df) == 0) {
+        warning("There are 0-row data in ", basename(file), " at observation ",
+                obs, " label ", label)
+        # Ugh: this will break if Licor changes the format at all
+        data_df <- data.frame(timestamp = NA,
+                              chamber_p = NA,
+                              chamber_p_t = NA,
+                              chamber_t = NA,
+                              soil_t = NA,
+                              soilp_c = NA,
+                              soilp_m = NA,
+                              soilp_t = NA,
+                              ch4 = NA,
+                              co2 = NA,
+                              h2o = NA,
+                              err = NA)
+      }
+
+      if(!concentrations) {
+        # No concentration data requested, but we still want to extract
+        # temperature, moisture, EC, and pressure data
+        data_df <- colMeans(data_df[c("chamber_p", "chamber_t",
+                                      "soil_t",
+                                      "soilp_c", "soilp_m", "soilp_t")],
+                            na.rm = TRUE)
+        # Change numeric vector to one-row data frame
+        data_df <- t(as.data.frame(data_df))
       }
 
       # Convert footer flux info into a 1-row data frame
