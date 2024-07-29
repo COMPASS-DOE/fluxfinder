@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_data_functions.R
 \name{ffi_read_EGM4}
 \alias{ffi_read_EGM4}
-\title{Read an EGM-R data file}
+\title{Read an EGM-4 data file}
 \usage{
 ffi_read_EGM4(file, year, tz = "UTC")
 }
@@ -18,7 +18,7 @@ month, day, hour, and minute, but not year), numeric or character}
 A \code{\link{data.frame}} with the parsed data.
 }
 \description{
-Read an EGM-R data file
+Read an EGM-4 data file
 }
 \examples{
 f <- system.file("extdata/EGM4-data.dat", package = "fluxfinder")

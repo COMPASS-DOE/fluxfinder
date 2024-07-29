@@ -157,7 +157,7 @@ ffi_read_PicarroG2301 <- function(file, tz = "UTC") {
   return(dat)
 }
 
-#' Read an EGM-R data file
+#' Read an EGM-4 data file
 #'
 #' @param file Filename to read, character
 #' @param year Four-digit year of the data (EGM-4 output files have

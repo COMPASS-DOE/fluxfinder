@@ -1,0 +1,11 @@
+bibentry(
+  bibtype  = "Article",
+  title    = "fluxfinder: an R package for reproducible calculation of greenhouse gas fluxes from static chamber measurements",
+  author   = "Stephanie J. Wilson and Ben Bond-Lamberty and Genevieve Noyce and Roberta Bittencourt Peixoto and J. Patrick Megonigal",
+  journal  = "Journal of Geophysical Research: Biogeosciences",
+  year     = 2024,
+  volume   = "submitted",
+  number   = "",
+  pages    = "",
+  doi      = ""
+)
