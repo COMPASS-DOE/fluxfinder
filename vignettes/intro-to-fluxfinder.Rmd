@@ -170,7 +170,19 @@ aggregate(CO2_umol_m2 ~ Plot, data = dat_changing_vol, FUN = mean)
 
 The `ffi_compute_fluxes` function provides a general-purpose tool for
 computing fluxes from concentration time series, as well as associated
-QA/QC information.
+QA/QC information. It returns statistics for four types of models:
+_linear_, _robust linear_, _polynomial_, and _HM81_, an exponential model
+derived from diffusion theory, following
+[Hutchinson and Mosier (1981)](http://dx.doi.org/10.2136/sssaj1981.03615995004500020017x). 
+
+Model statistics include Akaike information criterion (`AIC`), 
+R squared (`r.squared`), standard error of the residuals (`sigma`), 
+and model p-value (`p.value`). For the robust linear regression only, a 
+logical value `converged` is included; see the documentation for `MASS::rlm()`.
+
+Flux (slope) statistics estimate and std.error;
+
+For the robust linear regression model only, a logical value converged.
 
 ```{r compute-fluxes}
 fluxes <- ffi_compute_fluxes(dat,
@@ -185,29 +197,26 @@ fluxes <- ffi_compute_fluxes(dat,
 # and the rest of the columns are fit statistics for a linear fit of
 # concentration as a function of time, along with information about polynomial
 # and robust-linear fits. See ?ffi_compute_fluxes for more details.
+names(fluxes)
 
 # For clarity, print out only a subset of the columns 
-fluxes[c("Plot", "TIMESTAMP", "adj.r.squared", "flux_estimate", "flux_HM1981")]
-
+fluxes[c("Plot", "TIMESTAMP", "lin_r.squared", "lin_estimate", "HM81_estimate")]
 ```
 
 Note that the `fluxes` extract printed above has one row per `Plot`, the
 grouping variable; the mean `TIMESTAMP` of the group; model statistics
-such as `adj.r.squared`; and the flux (i.e., slope) estimate. The final
-column, `flux_HM1981`, gives the flux computed using a nonlinear model
-derived from diffusion theory, following
-[Hutchinson and Mosier (1981)](http://dx.doi.org/10.2136/sssaj1981.03615995004500020017x). This
-is only numeric (i.e., not `NA`) when the data show evidence of a saturating
-curvature. So in this case we might want to examine more carefully the
-data from plots A, C, and F.
+such as `lin_r.squared`; and the flux estimate. The final
+column, `HM81_estimate` is only numeric (i.e., not `NA`) when the data 
+show evidence of a saturating curvature. So in this case we might want to
+examine more carefully the data from plots A, C, and F.
 
 Plotting our computed fluxes:
 
 ```{r plot-fluxes, fig.width=7}
-ggplot(fluxes, aes(Plot, flux_estimate, color = adj.r.squared)) +
+ggplot(fluxes, aes(Plot, lin_estimate, color = lin_r.squared)) +
   geom_point() +
-  geom_linerange(aes(ymin = flux_estimate - flux_std.error,
-                     ymax = flux_estimate + flux_std.error)) +
+  geom_linerange(aes(ymin = lin_estimate - lin_std.error,
+                     ymax = lin_estimate + lin_std.error)) +
   ylab("CO2 flux (µmol/m2/s)")
 ```
 
@@ -218,16 +227,16 @@ polynomial R<sup>2</sup> is much larger, potentially indicating curvature
 of the observations due to e.g. diffusion limitations.
 
 ```{r, figures-side, fig.show="hold", out.width="46%"}
-ggplot(fluxes, aes(flux_estimate, flux_estimate_robust, color = Plot)) +
+ggplot(fluxes, aes(lin_estimate, rob_estimate, color = Plot)) +
   geom_point() + geom_abline() + theme(legend.position = "none")
-ggplot(fluxes, aes(adj.r.squared, r.squared_poly, color = Plot)) +
+ggplot(fluxes, aes(lin_r.squared, poly_r.squared, color = Plot)) +
   geom_point() + geom_abline() + theme(legend.position="none")
 ```
 
 The plot C (green) data have more scatter, and thus lower R<sup>2</sup> values and
 higher uncertainty on the computed flux,
 but there's no strong evidence of nonlinearity or outlier problems (although
-see note above about the `flux_HM1981` field).
+see note above about the `HM81_estimate` field).
 
 ## Conclusion
 

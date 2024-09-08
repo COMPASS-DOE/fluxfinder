@@ -17,24 +17,19 @@ ffi_fit_models(time, conc, area, volume)
 (chamber + tubing + analyzer, typically cm3), numeric}
 }
 \value{
-A wide-form \code{\link{data.frame}} with fit statistics for linear,
-robust linear, and polynomial models.
-The following columns are returned:
+A wide-form \code{\link{data.frame}} with fit statistics for linear
+(\code{\link{lm}}), robust linear (\code{\link[MASS]{rlm}}), polynomial,
+and HM1981 models. The latter is computed by \code{\link{ffi_hm1981}}
+using nonlinear regression based on one-dimensional diffusion theory
+following Hutchinson and Mosier (1981) and Nakano et al. (2004).
+
+For each model type, the following columns are returned:
 \itemize{
-\item Model statistics \code{r.squared}, \code{adj.r.squared},
-\code{sigma}, \code{statistic}, and \code{p.value} (see the
-\code{\link{lm}} documentation for more information);
-\item Flux (slope) statistics \code{flux_estimate}, \code{flux_std.error},
-\code{flux_statistic}, and \code{flux_p.value}, all from \code{\link{lm}};
-\item Intercept statistics \code{int_estimate}, \code{int_std.error},
-\code{int_statistic}, and \code{int_p.value}, all from \code{\link{lm}};
-\item Additional diagnostics: \code{flux_estimate_robust}, the slope of a
-robust linear regression model using \code{\link[MASS]{rlm}};
-\code{r.squared_poly}, the fraction of variance explained by a
-second-order polynomial model, and \code{flux_HM1981}, the flux
-computed by \code{\link{ffi_hm1981}} using nonlinear regression based
-on one-dimensional diffusion theory following
-Hutchinson and Mosier (1981) and Nakano et al. (2004).
+\item Model statistics \code{AIC}, \code{r.squared}, \code{sigma},
+and \code{p.value};
+\item Flux (slope) statistics \code{estimate} and \code{std.error};
+\item For the robust linear regression model only,
+a logical value \code{converged}.
 }
 }
 \description{
@@ -43,17 +38,20 @@ Fit various models to gas concentration data
 \details{
 If a linear model cannot be fit, NULL is returned. If the robust
 linear and/or polynomial models cannot be fit, then \code{NA} is returned
-for their particular statistics. By default, extensive details are provided
-only for the linear fit; for robust linear and polynomial, only the slope
-and R2 are returned, respectively, as these are intended for QA/QC.
+for their particular statistics. The HM1981 approach is only valid for
+saturating (exponential) data and \code{NA} is returned otherwise.
 }
 \note{
-Normally this is not called
-directly by users, but instead via \code{\link{ffi_compute_fluxes}}.
+Normally this is not called directly by users,
+but instead via \code{\link{ffi_compute_fluxes}}.
 }
 \examples{
-# Toy data
+# Toy data - linear
 ffi_fit_models(cars$speed, cars$dist)
+
+# Toy data - nonlinear
+ffi_fit_models(Puromycin$conc, Puromycin$rate)
+
 # Real data
 f <- system.file("extdata/TG10-01087.data", package = "fluxfinder")
 dat <- ffi_read_LI7810(f)[1:75,] # isolate first observation

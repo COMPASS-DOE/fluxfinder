@@ -1,18 +1,19 @@
 test_that("ffi_fit_models works", {
   # These are very basic tests; we'd probably like to do something better
-  x <- ffi_fit_models(cars$speed, cars$dist)
+  x <- ffi_fit_models(Puromycin$conc, Puromycin$rate)
   expect_s3_class(x, "data.frame")
 
+  # Linear data should generate a message
+  expect_message(ffi_fit_models(cars$speed, cars$dist),
+                 regexp = "implying linear data")
+
   # Produces warnings, but returns a data frame, for perfect-fit data
+  withr::local_options(fluxfinder.quiet = TRUE)
   suppressWarnings(
     expect_warning(y <- ffi_fit_models(1:3, 1:3))
   )
   expect_s3_class(y, "data.frame")
-  expect_true(is.na(y$r.squared_poly))
-
-  # Nonlinear data should generate a message
-  expect_message(ffi_fit_models(Puromycin$conc, Puromycin$rate),
-                 regexp = "nonlinear data")
+  expect_true(is.na(y$poly_r.squared))
 })
 
 test_that("ffi_normalize_time works", {
@@ -27,6 +28,9 @@ test_that("ffi_normalize_time works", {
 })
 
 test_that("ffi_compute_fluxes works", {
+  # Errors if no group column
+  expect_error(ffi_compute_fluxes(cars, "Plot", "speed", "dist"),
+               regexp = "There is no")
   # Make test data
   plots <- LETTERS[1:2]
   times <- 1:3
