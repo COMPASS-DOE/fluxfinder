@@ -84,21 +84,21 @@ ffi_fit_models <- function(time, conc, area, volume) {
     rob_model_stats <- glance(robust)[c("sigma", "converged", "AIC")]
     tmod <- tidy(robust)
     rob_slope_stats <- tmod[2, c("estimate", "std.error")]
-    rob_int_stats <- tmod[1, c("estimate", "std.error")]
+#    rob_int_stats <- tmod[1, c("estimate", "std.error")]
   },
   error = function(e) {
     warning("Could not fit robust linear model")
     rob_model_stats <- data.frame(sigma = NA_real_, converged = FALSE, AIC = NA_real_)
     rob_slope_stats <- data.frame(estimate = NA_real_, std.error = NA_real_)
-    rob_int_stats <- data.frame(estimate = NA_real_, std.error = NA_real_)
+    # rob_int_stats <- data.frame(estimate = NA_real_, std.error = NA_real_)
   })
 
   names(rob_model_stats) <- paste0("rob_", names(rob_model_stats))
   names(rob_slope_stats) <- paste0("rob_flux.", names(rob_slope_stats))
-  names(rob_int_stats) <- paste0("rob_int.", names(rob_int_stats))
+  # names(rob_int_stats) <- paste0("rob_int.", names(rob_int_stats))
   model_stats <- cbind(model_stats, rob_model_stats)
   slope_stats <- cbind(slope_stats, rob_slope_stats)
-  int_stats <- cbind(int_stats, rob_int_stats)
+  # int_stats <- cbind(int_stats, rob_int_stats)
 
   # Add polynomial regression as a QA/QC check
   poly_model_stats <- data.frame(r.squared = NA_real_, AIC = NA_real_)
@@ -112,7 +112,7 @@ ffi_fit_models <- function(time, conc, area, volume) {
   names(poly_model_stats) <- paste0("poly_", names(poly_model_stats))
   model_stats <- cbind(model_stats, poly_model_stats)
 
-  # Add slope computed using Hutchinson and Mosier (1981) nonlinear regression
+  # Add slope computed using Hutchinson and Mosier (1981) approach
   slope_stats$HM81_flux.estimate <- ffi_hm1981(time, conc)
 
   # The HM1981 approach is based on an exponential model, so derive fit
@@ -122,7 +122,9 @@ ffi_fit_models <- function(time, conc, area, volume) {
     hm81_model_stats <- data.frame(r.squared = NA_real_, sigma = NA_real_,
                                    p.value = NA_real_, AIC = NA_real_)
   } else {
-    mod <- lm(log(conc) ~ time)
+    # The time values are probably normalized, i.e. starting at zero
+    # Add a (presumably) tiny offset so we don't get log(0) errors
+    mod <- lm(conc ~ log(time + 0.01))
     hm81_model_stats <- glance(mod)[c("r.squared", "sigma", "p.value", "AIC")]
   }
 

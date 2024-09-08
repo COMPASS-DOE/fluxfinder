@@ -237,6 +237,52 @@ higher uncertainty on the computed flux,
 but there's no strong evidence of nonlinearity or outlier problems (although
 see note above about the `HM81_estimate` field).
 
+## A clearly nonlinear case
+
+In our experience, static-chamber fluxes are frequently linear
+([Forbrich et al. 2010](https://doi.org/10.1016/j.soilbio.2009.12.004))
+even though molecular diffusion means that chamber feedbacks will inevitably
+lead to curvilinear (saturating) behavior over time
+([Pedersen et al. 2010](https://doi.org/10.1111/j.1365-2389.2010.01291.x)).
+
+Still, how does one use `fluxfinder` to diagnose and work with nonlinear data?
+
+Let's use R's built-in `Puromycin` dataset (simply because it exhibits
+saturating behavior; it's unrelated to greenhouse gases) as an example:
+
+```{r, fig.width=7}
+ggplot(Puromycin, aes(conc, rate)) + geom_point() + geom_smooth(method = "lm")
+```
+
+Visually, we can see that a linear model will not be appropriate in this
+case. 
+
+```{r}
+ffi_compute_fluxes(Puromycin,
+                   group_column = NULL,
+                   time_column = "conc",
+                   gas_column = "rate")
+```
+
+```{r include=FALSE}
+x <- ffi_compute_fluxes(Puromycin,
+                        group_column = NULL,
+                        time_column = "conc",
+                        gas_column = "rate")
+x <- round(x, 3)
+```
+
+From the diagnostics returned by `ffi_compute_fluxes`:
+
+* `HM81_flux.estimate` is not `NA`, which only occurs with saturating behavior;
+* The `lin_AIC` (`r x$lin_AIC`) and `rob_AIC` (`r x$rob_AIC`) values are similar, so no indication of influential outliers;
+* The `lin_r.squared` (`r x$lin_r.squared`) and `poly_r.squared` (`r x$poly_r.squared`) values are _very_ different, suggesting a failure of the linear model;
+* The `HM81_r.squared` (`r x$HM81_r.squared`) and `HM81_AIC` (`r x$HM81_AIC`) are considerably higher and lower, respectively, than the linear model. 
+
+All of these metrics point to a common conclusion: a linear model is _not_
+appropriate for these data. If these were real data, we should use the
+`HM81_flux.estimate` value as our flux estimate.
+
 ## Conclusion
 
 This vignette covered `fluxfinder` basics: loading data and metadata,
