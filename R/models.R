@@ -8,15 +8,16 @@
 #' @param volume Volume of the system
 #' (chamber + tubing + analyzer, typically cm3), numeric
 #' @return A wide-form \code{\link{data.frame}} with fit statistics for linear
-#' (\code{\link{lm}}), robust linear (\code{\link[MASS]{rlm}}), polynomial,
-#' and HM1981 models. The latter is computed by \code{\link{ffi_hm1981}}
-#' using nonlinear regression based on one-dimensional diffusion theory
-#' following Hutchinson and Mosier (1981) and Nakano et al. (2004).
+#' ("lin", \code{\link{lm}}), robust linear ("rob", \code{\link[MASS]{rlm}}),
+#' polynomial ("poly"), and H&M1981 ("HM81", \code{\link{ffi_hm1981}}) models.
+#' The latter is based on an exponential model drawn from one-dimensional
+#' diffusion theory; see Hutchinson and Mosier (1981) and Nakano et al. (2004).
 #'
 #' For each model type, the following columns are returned:
 #' * Model statistics \code{AIC}, \code{r.squared}, \code{sigma},
 #'  and \code{p.value};
-#' * Flux (slope) statistics \code{estimate} and \code{std.error};
+#' * Flux (slope) statistics \code{flux.estimate} and \code{flux.std.error};
+#' * Intercept statistics \code{int.estimate} and \code{int.std.error};
 #' * For the robust linear regression model only,
 #' a logical value \code{converged}.
 #' @md
@@ -68,10 +69,13 @@ ffi_fit_models <- function(time, conc, area, volume) {
   # Slope and intercept statistics
   tmod <- tidy(mod)
   lin_slope_stats <- tmod[2, c("estimate", "std.error")]
-  names(lin_slope_stats) <- paste0("lin_", names(lin_slope_stats))
+  names(lin_slope_stats) <- paste0("lin_flux.", names(lin_slope_stats))
+  lin_int_stats <- tmod[1, c("estimate", "std.error")]
+  names(lin_int_stats) <- paste0("lin_int.", names(lin_int_stats))
 
   model_stats <- lin_model_stats
   slope_stats <- lin_slope_stats
+  int_stats <- lin_int_stats
 
   # Add robust regression slope as a QA/QC check
   tryCatch({
@@ -80,17 +84,21 @@ ffi_fit_models <- function(time, conc, area, volume) {
     rob_model_stats <- glance(robust)[c("sigma", "converged", "AIC")]
     tmod <- tidy(robust)
     rob_slope_stats <- tmod[2, c("estimate", "std.error")]
+    rob_int_stats <- tmod[1, c("estimate", "std.error")]
   },
   error = function(e) {
     warning("Could not fit robust linear model")
     rob_model_stats <- data.frame(sigma = NA_real_, converged = FALSE, AIC = NA_real_)
     rob_slope_stats <- data.frame(estimate = NA_real_, std.error = NA_real_)
+    rob_int_stats <- data.frame(estimate = NA_real_, std.error = NA_real_)
   })
 
   names(rob_model_stats) <- paste0("rob_", names(rob_model_stats))
-  names(rob_slope_stats) <- paste0("rob_", names(rob_slope_stats))
+  names(rob_slope_stats) <- paste0("rob_flux.", names(rob_slope_stats))
+  names(rob_int_stats) <- paste0("rob_int.", names(rob_int_stats))
   model_stats <- cbind(model_stats, rob_model_stats)
   slope_stats <- cbind(slope_stats, rob_slope_stats)
+  int_stats <- cbind(int_stats, rob_int_stats)
 
   # Add polynomial regression as a QA/QC check
   poly_model_stats <- data.frame(r.squared = NA_real_, AIC = NA_real_)
@@ -105,12 +113,12 @@ ffi_fit_models <- function(time, conc, area, volume) {
   model_stats <- cbind(model_stats, poly_model_stats)
 
   # Add slope computed using Hutchinson and Mosier (1981) nonlinear regression
-  slope_stats$HM81_estimate <- ffi_hm1981(time, conc)
+  slope_stats$HM81_flux.estimate <- ffi_hm1981(time, conc)
 
   # The HM1981 approach is based on an exponential model, so derive fit
   # statistics by log-transforming the data
-  if(is.na(slope_stats$HM81_estimate)) {
-    ffi_message("NOTE: HM81_estimate is NA, implying linear data")
+  if(is.na(slope_stats$HM81_flux.estimate)) {
+    ffi_message("NOTE: HM81_flux.estimate is NA, implying linear data")
     hm81_model_stats <- data.frame(r.squared = NA_real_, sigma = NA_real_,
                                    p.value = NA_real_, AIC = NA_real_)
   } else {
@@ -122,7 +130,7 @@ ffi_fit_models <- function(time, conc, area, volume) {
   model_stats <- cbind(model_stats, hm81_model_stats)
 
   # Combine, sort columns, and return
-  out <- cbind(model_stats, slope_stats)
+  out <- cbind(model_stats, slope_stats, int_stats)
   return(out[sort(names(out))])
 }
 

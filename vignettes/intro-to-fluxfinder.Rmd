@@ -200,34 +200,33 @@ fluxes <- ffi_compute_fluxes(dat,
 names(fluxes)
 
 # For clarity, print out only a subset of the columns 
-fluxes[c("Plot", "TIMESTAMP", "lin_r.squared", "lin_estimate", "HM81_estimate")]
+fluxes[c("Plot", "TIMESTAMP", "lin_r.squared", "lin_flux.estimate", "HM81_flux.estimate")]
 ```
 
 Note that the `fluxes` extract printed above has one row per `Plot`, the
 grouping variable; the mean `TIMESTAMP` of the group; model statistics
 such as `lin_r.squared`; and the flux estimate. The final
-column, `HM81_estimate` is only numeric (i.e., not `NA`) when the data 
+column, `HM81_flux.estimate` is only numeric (i.e., not `NA`) when the data 
 show evidence of a saturating curvature. So in this case we might want to
 examine more carefully the data from plots A, C, and F.
 
 Plotting our computed fluxes:
 
 ```{r plot-fluxes, fig.width=7}
-ggplot(fluxes, aes(Plot, lin_estimate, color = lin_r.squared)) +
+ggplot(fluxes, aes(Plot, lin_flux.estimate, color = lin_r.squared)) +
   geom_point() +
-  geom_linerange(aes(ymin = lin_estimate - lin_std.error,
-                     ymax = lin_estimate + lin_std.error)) +
+  geom_linerange(aes(ymin = lin_flux.estimate - lin_flux.std.error,
+                     ymax = lin_flux.estimate + lin_flux.std.error)) +
   ylab("CO2 flux (µmol/m2/s)")
 ```
 
-
-We might want to check whether the robust-linear slope (flux) diverges 
+We might want to check whether the robust-linear slope diverges 
 from the linear fit slope, suggesting influential outliers, or whether the
 polynomial R<sup>2</sup> is much larger, potentially indicating curvature 
 of the observations due to e.g. diffusion limitations.
 
 ```{r, figures-side, fig.show="hold", out.width="46%"}
-ggplot(fluxes, aes(lin_estimate, rob_estimate, color = Plot)) +
+ggplot(fluxes, aes(lin_flux.estimate, rob_flux.estimate, color = Plot)) +
   geom_point() + geom_abline() + theme(legend.position = "none")
 ggplot(fluxes, aes(lin_r.squared, poly_r.squared, color = Plot)) +
   geom_point() + geom_abline() + theme(legend.position="none")

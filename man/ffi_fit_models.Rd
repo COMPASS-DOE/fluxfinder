@@ -18,16 +18,17 @@ ffi_fit_models(time, conc, area, volume)
 }
 \value{
 A wide-form \code{\link{data.frame}} with fit statistics for linear
-(\code{\link{lm}}), robust linear (\code{\link[MASS]{rlm}}), polynomial,
-and HM1981 models. The latter is computed by \code{\link{ffi_hm1981}}
-using nonlinear regression based on one-dimensional diffusion theory
-following Hutchinson and Mosier (1981) and Nakano et al. (2004).
+("lin", \code{\link{lm}}), robust linear ("rob", \code{\link[MASS]{rlm}}),
+polynomial ("poly"), and H&M1981 ("HM81", \code{\link{ffi_hm1981}}) models.
+The latter is based on an exponential model drawn from one-dimensional
+diffusion theory; see Hutchinson and Mosier (1981) and Nakano et al. (2004).
 
 For each model type, the following columns are returned:
 \itemize{
 \item Model statistics \code{AIC}, \code{r.squared}, \code{sigma},
 and \code{p.value};
-\item Flux (slope) statistics \code{estimate} and \code{std.error};
+\item Flux (slope) statistics \code{flux.estimate} and \code{flux.std.error};
+\item Intercept statistics \code{int.estimate} and \code{int.std.error};
 \item For the robust linear regression model only,
 a logical value \code{converged}.
 }
