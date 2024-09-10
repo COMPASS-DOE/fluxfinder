@@ -6,6 +6,7 @@ output:
     code_folding: hide
 params:
   flux_data: ""
+  conc_data: ""
   group_column: NULL
 ---
 
@@ -18,6 +19,7 @@ theme_set(theme_bw())
 # Read the flux data
 if(params$flux_data == "") {
   fd <- readRDS("extdata/LI8200-01S_fluxes")
+  cd <- readRDS("extdata/LI8200-01S_concentrations")
   groupcol <- "group"
 } else {
   fd <- readRDS(params$flux_data)
@@ -105,3 +107,19 @@ p <- ggplot(fd, aes(lin_r.squared, poly_r.squared,
 
 print(p)
 ```
+
+# Observations and fitted fluxes
+
+```{r}
+for(g in unique(cd[[groupcol]])) {
+  pd <- cd[cd[[groupcol]] == g,]
+  fpd <- fd[fd[[groupcol]] == g,]
+  pd$Seconds <- fluxfinder:::ffi_normalize_time(pd$TIMESTAMP)
+  p <- ggplot(pd, aes(Seconds, co2)) + geom_point() 
+  p <- p + geom_abline(intercept = fpd$lin_int.estimate, slope = fpd$lin_flux.estimate)
+  p <- p + ggtitle(g)
+  print(p)
+}
+
+```
+

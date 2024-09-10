@@ -31,10 +31,15 @@ The path of the output file
 Generate a QA/QC document
 }
 \examples{
-# Toy data
-cars$Plot <- c("A", "B")
-fd <- ffi_compute_fluxes(cars, "Plot", "speed", "dist")
+# Compute fluxes from the smart chamber concentration data
+dat <- ffi_read_LIsmartchamber(f) # concentrations
+dat$CO2_umol <- ffi_ppm_to_umol(dat$co2,
+  volume = dat$TotalVolume[1] / 100 ^ 3,
+  temp = dat$chamber_t[1])
+dat$CO2_umol_m2 <- dat$CO2_umol /  0.0314 # normalize by area (20 cm collar)
+dat$group <- paste(dat$label, dat$RepNum)
+fluxes <- ffi_compute_fluxes(dat, group_column = "group",
+  time_column = "TIMESTAMP", gas_column = "CO2_umol_m2", dead_band = 5)
 x <- ffi_qaqc(fd, group_column = "Plot")
 file.remove(x) # clean up
-# See the introductory vignette for a fully-worked example with real data
 }

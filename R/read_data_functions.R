@@ -217,15 +217,6 @@ ffi_read_EGM4 <- function(file, year, tz = "UTC") {
 #' f <- system.file("extdata/LI8200-01S.json", package = "fluxfinder")
 #' dat <- ffi_read_LIsmartchamber(f) # returns 6182 rows
 #' ffi_read_LIsmartchamber(f, concentrations = FALSE) # only 103 rows
-#'
-#' # Compute fluxes from the smart chamber concentration data
-#' dat$CO2_umol <- ffi_ppm_to_umol(dat$co2,
-#'   volume = dat$TotalVolume[1]/100^3,
-#'   temp = dat$chamber_t[1])
-#' dat$CO2_umol_m2 <- dat$CO2_umol /  0.0314 # normalize by area (20 cm collar)
-#' dat$group <- paste(dat$label, dat$RepNum)
-#' ffi_compute_fluxes(dat, group_column = "group", time_column = "TIMESTAMP",
-#'   gas_column = "CO2_umol_m2", dead_band = 5)
 ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
 
   dat_raw <- jsonlite::read_json(file)

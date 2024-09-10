@@ -14,12 +14,20 @@
 #' @export
 #'
 #' @examples
-#' # Toy data
-#' cars$Plot <- c("A", "B")
-#' fd <- ffi_compute_fluxes(cars, "Plot", "speed", "dist")
-#' x <- ffi_qaqc(fd, group_column = "Plot")
+#' # Compute fluxes from the smart chamber concentration data
+#' dat <- ffi_read_LIsmartchamber(f) # concentrations
+#' dat <- dat[dat$RepNum == 1,]
+#' dat$CO2_umol <- ffi_ppm_to_umol(dat$co2,
+#'   volume = dat$TotalVolume[1] / 100 ^ 3,
+#'   temp = dat$chamber_t[1])
+#' dat$CO2_umol_m2 <- dat$CO2_umol /  0.0314 # normalize by area (20 cm collar)
+#' dat$group <- paste(dat$label, dat$RepNum)
+#' fluxes <- ffi_compute_fluxes(dat, group_column = "group",
+#'   time_column = "TIMESTAMP", gas_column = "CO2_umol_m2", dead_band = 5)
+#'
+#' # Now generate the QAQC page
+#' x <- ffi_qaqc(fluxes, group_column = "group")
 #' file.remove(x) # clean up
-#' # See the introductory vignette for a fully-worked example with real data
 ffi_qaqc <- function(flux_data,
                      group_column,
                      output_file = "qaqc.html",

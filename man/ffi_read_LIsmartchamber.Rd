@@ -24,8 +24,8 @@ See also \url{https://www.licor.com/env/products/soil-flux/smart-chamber}.
 }
 \examples{
 f <- system.file("extdata/LI8200-01S.json", package = "fluxfinder")
-dat <- ffi_read_LIsmartchamber(f) # returns 240 rows
-ffi_read_LIsmartchamber(f, concentrations = FALSE) # only 4 rows
+dat <- ffi_read_LIsmartchamber(f) # returns 6182 rows
+ffi_read_LIsmartchamber(f, concentrations = FALSE) # only 103 rows
 }
 \author{
 Ben Bond-Lamberty
