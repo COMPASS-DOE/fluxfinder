@@ -7,31 +7,26 @@
 #' @param area Area covered by the measurement chamber (typically cm2), numeric
 #' @param volume Volume of the system
 #' (chamber + tubing + analyzer, typically cm3), numeric
-#' @return A wide-form \code{\link{data.frame}} with fit statistics for linear,
-#' robust linear, and polynomial models.
-#' The following columns are returned:
-#' * Model statistics \code{r.squared}, \code{adj.r.squared},
-#' \code{sigma}, \code{statistic}, and \code{p.value} (see the
-#' \code{\link{lm}} documentation for more information);
-#' * Flux (slope) statistics \code{flux_estimate}, \code{flux_std.error},
-#' \code{flux_statistic}, and \code{flux_p.value}, all from \code{\link{lm}};
-#' * Intercept statistics \code{int_estimate}, \code{int_std.error},
-#' \code{int_statistic}, and \code{int_p.value}, all from \code{\link{lm}};
-#' * Additional diagnostics: \code{flux_estimate_robust}, the slope of a
-#' robust linear regression model using \code{\link[MASS]{rlm}};
-#' \code{r.squared_poly}, the fraction of variance explained by a
-#' second-order polynomial model, and \code{flux_HM1981}, the flux
-#' computed by \code{\link{ffi_hm1981}} using nonlinear regression based
-#' on one-dimensional diffusion theory following
-#' Hutchinson and Mosier (1981) and Nakano et al. (2004).
+#' @return A wide-form \code{\link{data.frame}} with fit statistics for linear
+#' ("lin", \code{\link{lm}}), robust linear ("rob", \code{\link[MASS]{rlm}}),
+#' polynomial ("poly"), and H&M1981 ("HM81", \code{\link{ffi_hm1981}}) models.
+#' The latter is based on an exponential model drawn from one-dimensional
+#' diffusion theory; see Hutchinson and Mosier (1981) and Nakano et al. (2004).
+#'
+#' For each model type, the following columns are returned:
+#' * Model statistics \code{AIC}, \code{r.squared}, \code{sigma},
+#'  and \code{p.value};
+#' * Flux (slope) statistics \code{flux.estimate} and \code{flux.std.error};
+#' * Intercept statistics \code{int.estimate} and \code{int.std.error};
+#' * For the robust linear regression model only,
+#' a logical value \code{converged}.
 #' @md
 #' @details If a linear model cannot be fit, NULL is returned. If the robust
 #' linear and/or polynomial models cannot be fit, then \code{NA} is returned
-#' for their particular statistics. By default, extensive details are provided
-#' only for the linear fit; for robust linear and polynomial, only the slope
-#' and R2 are returned, respectively, as these are intended for QA/QC.
-#' @note Normally this is not called
-#' directly by users, but instead via \code{\link{ffi_compute_fluxes}}.
+#' for their particular statistics. The HM1981 approach is only valid for
+#' saturating (exponential) data and \code{NA} is returned otherwise.
+#' @note Normally this is not called directly by users,
+#' but instead via \code{\link{ffi_compute_fluxes}}.
 #' @references
 #' Nakano, T., Sawamoto, T., Morishita, T., Inoue, G., and Hatano, R.:
 #' A comparison of regression methods for estimating soil–atmosphere diffusion
@@ -43,11 +38,15 @@
 #' 1981. \url{http://dx.doi.org/10.2136/sssaj1981.03615995004500020017x}
 #' @importFrom broom glance tidy
 #' @importFrom MASS rlm
-#' @importFrom stats lm coefficients
+#' @importFrom stats lm
 #' @export
 #' @examples
-#' # Toy data
+#' # Toy data - linear
 #' ffi_fit_models(cars$speed, cars$dist)
+#'
+#' # Toy data - nonlinear
+#' ffi_fit_models(Puromycin$conc, Puromycin$rate)
+#'
 #' # Real data
 #' f <- system.file("extdata/TG10-01087.data", package = "fluxfinder")
 #' dat <- ffi_read_LI7810(f)[1:75,] # isolate first observation
@@ -64,43 +63,77 @@ ffi_fit_models <- function(time, conc, area, volume) {
 
   # Linear model overall metrics. 'glance' produces 12 different ones;
   # we keep the first 5 (adjR2, R2, sigma, statistic, p-value)
-  model_stats <- glance(mod)[,1:5]
+  lin_model_stats <- glance(mod)[c("r.squared", "sigma", "p.value", "AIC")]
+  names(lin_model_stats) <- paste0("lin_", names(lin_model_stats))
 
   # Slope and intercept statistics
   tmod <- tidy(mod)
-  slope_stats <- tmod[2,-1]
-  names(slope_stats) <- paste("flux", names(slope_stats), sep = "_")
-  intercept_stats <- tmod[1,-1]
-  names(intercept_stats) <- paste("int", names(intercept_stats), sep = "_")
+  lin_slope_stats <- tmod[2, c("estimate", "std.error")]
+  names(lin_slope_stats) <- paste0("lin_flux.", names(lin_slope_stats))
+  lin_int_stats <- tmod[1, c("estimate", "std.error")]
+  names(lin_int_stats) <- paste0("lin_int.", names(lin_int_stats))
+
+  model_stats <- lin_model_stats
+  slope_stats <- lin_slope_stats
+  int_stats <- lin_int_stats
 
   # Add robust regression slope as a QA/QC check
-  slope_stats$flux_estimate_robust <- tryCatch({
+  tryCatch({
     robust <- rlm(conc ~ time)
-    coefficients(robust)[2]
+
+    rob_model_stats <- glance(robust)[c("sigma", "converged", "AIC")]
+    tmod <- tidy(robust)
+    rob_slope_stats <- tmod[2, c("estimate", "std.error")]
+#    rob_int_stats <- tmod[1, c("estimate", "std.error")]
   },
   error = function(e) {
     warning("Could not fit robust linear model")
-    NA_real_
+    rob_model_stats <- data.frame(sigma = NA_real_, converged = FALSE, AIC = NA_real_)
+    rob_slope_stats <- data.frame(estimate = NA_real_, std.error = NA_real_)
+    # rob_int_stats <- data.frame(estimate = NA_real_, std.error = NA_real_)
   })
 
-  # Add polynomial regression R2 as a QA/QC check
-  slope_stats$r.squared_poly <- tryCatch({
-    poly <- lm(conc ~ poly(time, 3))
-    summary(poly)$r.squared
-  },
-  error = function(e) {
-    warning("Could not fit polynomial model")
-    NA_real_
-  })
+  names(rob_model_stats) <- paste0("rob_", names(rob_model_stats))
+  names(rob_slope_stats) <- paste0("rob_flux.", names(rob_slope_stats))
+  # names(rob_int_stats) <- paste0("rob_int.", names(rob_int_stats))
+  model_stats <- cbind(model_stats, rob_model_stats)
+  slope_stats <- cbind(slope_stats, rob_slope_stats)
+  # int_stats <- cbind(int_stats, rob_int_stats)
 
-  # Add slope computed using Hutchinson and Mosier (1981) nonlinear regression
-  slope_stats$flux_HM1981 <- ffi_hm1981(time, conc)
-  if(!is.na(slope_stats$flux_HM1981)) {
-    ffi_message("NOTE: flux_HM1981 is non-NA, implying nonlinear data")
+  # Add polynomial regression as a QA/QC check
+  poly_model_stats <- data.frame(r.squared = NA_real_, AIC = NA_real_)
+  if(length(time) > 3) {
+    try({
+      poly <- lm(conc ~ poly(time, 3))
+      poly_model_stats <- glance(poly)[c("r.squared", "AIC")]
+    })
   }
 
-  # Combine and return
-  return(cbind(model_stats, slope_stats, intercept_stats))
+  names(poly_model_stats) <- paste0("poly_", names(poly_model_stats))
+  model_stats <- cbind(model_stats, poly_model_stats)
+
+  # Add slope computed using Hutchinson and Mosier (1981) approach
+  slope_stats$HM81_flux.estimate <- ffi_hm1981(time, conc)
+
+  # The HM1981 approach is based on an exponential model, so derive fit
+  # statistics by log-transforming the data
+  if(!is.na(slope_stats$HM81_flux.estimate)) {
+    ffi_message("NOTE: HM81_flux.estimate is not NA, implying nonlinear data")
+    hm81_model_stats <- data.frame(r.squared = NA_real_, sigma = NA_real_,
+                                   p.value = NA_real_, AIC = NA_real_)
+  } else {
+    # The time values are probably normalized, i.e. starting at zero
+    # Add a (presumably) tiny offset so we don't get log(0) errors
+    mod <- lm(conc ~ log(time + 0.01))
+    hm81_model_stats <- glance(mod)[c("r.squared", "sigma", "p.value", "AIC")]
+  }
+
+  names(hm81_model_stats) <- paste0("HM81_", names(hm81_model_stats))
+  model_stats <- cbind(model_stats, hm81_model_stats)
+
+  # Combine, sort columns, and return
+  out <- cbind(model_stats, slope_stats, int_stats)
+  return(out[sort(names(out))])
 }
 
 
@@ -129,8 +162,8 @@ ffi_hm1981 <- function(time, conc, h = 1) {
   C2 <- vals[3]
   Tmax <- max(time)
 
+  # This approach is only valid when (C1-C0)/(C2-C1) > 1, i.e. saturating
   logterm <- (C1 - C0) / (C2 - C1)
-  # This approach is only valid when (C1-C0)/(C2-C1) > 1
   if(logterm > 1) {
     (h * (C1 - C0)) ^ 2 / (0.5 * Tmax * (2 * C1 - C2 - C0)) * log(logterm)
   } else {
@@ -199,6 +232,10 @@ ffi_compute_fluxes <- function(data,
   if(is.null(group_column)) {
     x <- list(data)
   } else {
+    if(!group_column %in% colnames(data)) {
+      stop("There is no '", group_column, "' column in the data")
+    }
+
     x <- split(data, data[group_column])
   }
 
