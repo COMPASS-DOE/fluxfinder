@@ -117,8 +117,8 @@ ffi_fit_models <- function(time, conc, area, volume) {
 
   # The HM1981 approach is based on an exponential model, so derive fit
   # statistics by log-transforming the data
-  if(is.na(slope_stats$HM81_flux.estimate)) {
-    ffi_message("NOTE: HM81_flux.estimate is NA, implying linear data")
+  if(!is.na(slope_stats$HM81_flux.estimate)) {
+    ffi_message("NOTE: HM81_flux.estimate is not NA, implying nonlinear data")
     hm81_model_stats <- data.frame(r.squared = NA_real_, sigma = NA_real_,
                                    p.value = NA_real_, AIC = NA_real_)
   } else {

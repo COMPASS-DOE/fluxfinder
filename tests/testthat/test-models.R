@@ -1,11 +1,11 @@
 test_that("ffi_fit_models works", {
   # These are very basic tests; we'd probably like to do something better
-  x <- ffi_fit_models(Puromycin$conc, Puromycin$rate)
+  x <- ffi_fit_models(cars$speed, cars$dist)
   expect_s3_class(x, "data.frame")
 
-  # Linear data should generate a message
-  expect_message(ffi_fit_models(cars$speed, cars$dist),
-                 regexp = "implying linear data")
+  # Nonlinear data should generate a message
+  expect_message(ffi_fit_models(Puromycin$conc, Puromycin$rate),
+                 regexp = "implying nonlinear data")
 
   # Produces warnings, but returns a data frame, for perfect-fit data
   withr::local_options(fluxfinder.quiet = TRUE)
