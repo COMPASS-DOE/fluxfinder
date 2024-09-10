@@ -17,8 +17,8 @@ theme_set(theme_bw())
 
 # Utility function: add labels to the lowest X%
 add_labels <- function(x, col1, col2, level, gc = params$group_column) {
-  reldiff <- abs((x[[col1]] - x[[col2]]) / x[[col1]])
-  outthere <- reldiff > quantile(reldiff, probs = level)
+  absdiff <- abs(x[[col1]] - x[[col2]]) #/ x[[col1]])
+  outthere <- absdiff > quantile(absdiff, probs = level)
   x$label <- NA
   if(is.null(gc)) {
     x$label[outthere] <- seq_len(nrow(x))[outthere]
@@ -42,10 +42,11 @@ Rows of flux data: `r nrow(fd)`
 
 ## Flux distribution
 
-```{r, flux-distribution}
-p <- ggplot(fd, aes(lin_flux.estimate)) +
-  geom_histogram(bins = 30)
-print(p)
+```{r, distribution}
+pd <- rbind(data.frame(Flux = fd$lin_flux.estimate, Type = "Linear"),
+            data.frame(Flux = fd$HM81_flux.estimate, Type = "HM81"))
+pd <- pd[!is.na(pd$Flux),]
+ggplot(pd, aes(Flux, fill = Type)) + geom_histogram(bins = 30, position = "dodge")
 ```
 
 ## Linear model versus robust linear model
@@ -53,11 +54,12 @@ print(p)
 Fluxes that depart from the 1:1 may have influential outliers in the underlying data.
 
 ```{r, linear-versus-robust}
-fd <- add_labels(fd, "lin_flux.estimate", "rob_flux.estimate", level = 0.75)
-p <- ggplot(fd, aes(lin_flux.estimate, rob_flux.estimate, label = label)) +
+fd <- add_labels(fd, "lin_flux.estimate", "rob_flux.estimate", level = 0.90)
+p <- ggplot(fd, aes(lin_flux.estimate, rob_flux.estimate, 
+                    color = is.na(label), label = label)) +
   geom_point() +
-  geom_text(size = 5, nudge_y = 0.1, na.rm = TRUE) +
-  geom_abline() + 
+  ggrepel::geom_text_repel(size = 5, na.rm = TRUE) +
+  geom_abline() +
   theme(legend.position = "none")
 
 #if(!is.null(group_column)) p <- p + aes(color = .data[[group_column]])
@@ -70,10 +72,11 @@ print(p)
 Fluxes that depart from the 1:1 may have nonlinearity issues in the underlying data.
 
 ```{r, linear-versus-polynomial}
-fd <- add_labels(fd, "lin_r.squared", "poly_r.squared", level = 0.75)
-p <- ggplot(fd, aes(lin_r.squared, poly_r.squared, label = label)) +
+fd <- add_labels(fd, "lin_r.squared", "poly_r.squared", level = 0.90)
+p <- ggplot(fd, aes(lin_r.squared, poly_r.squared, 
+                    color = is.na(label), label = label)) +
   geom_point() +
-  geom_text(size = 5, nudge_y = 0.01, na.rm = TRUE) +
+  ggrepel::geom_text_repel(size = 5, na.rm = TRUE) +
   geom_abline() + 
   theme(legend.position = "none")
 
