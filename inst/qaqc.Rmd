@@ -29,8 +29,14 @@ add_labels <- function(x, col1, col2, level, gc = params$group_column) {
 }
 
 # Read the flux data
-fd <- readRDS(params$flux_data)
+if(params$flux_data == "") {
+  fd <- readRDS("extdata/LI8200-01S_fluxes")
+} else {
+  fd <- readRDS(params$flux_data)
+}
 ```
+
+File: `r params$flux_data`
 
 Rows of flux data: `r nrow(fd)`
 
