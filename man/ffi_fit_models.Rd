@@ -25,7 +25,7 @@ diffusion theory; see Hutchinson and Mosier (1981) and Nakano et al. (2004).
 
 For each model type, the following columns are returned:
 \itemize{
-\item Model statistics \code{AIC}, \code{r.squared}, \code{sigma},
+\item Model statistics \code{AIC}, \code{r.squared}, \code{RMSE},
 and \code{p.value};
 \item Flux (slope) statistics \code{flux.estimate} and \code{flux.std.error};
 \item Intercept statistics \code{int.estimate} and \code{int.std.error};
