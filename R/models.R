@@ -14,8 +14,8 @@
 #' diffusion theory; see Hutchinson and Mosier (1981) and Nakano et al. (2004).
 #'
 #' For each model type, the following columns are returned:
-#' * Model statistics \code{AIC}, \code{r.squared}, \code{sigma},
-#' \code{p.value}, and \code{RMSE};
+#' * Model statistics \code{AIC}, \code{r.squared}, \code{RMSE},
+#' and \code{p.value};
 #' * Flux (slope) statistics \code{flux.estimate} and \code{flux.std.error};
 #' * Intercept statistics \code{int.estimate} and \code{int.std.error};
 #' * For the robust linear regression model only,
@@ -64,9 +64,6 @@ ffi_fit_models <- function(time, conc, area, volume) {
   # Linear model overall metrics. 'glance' produces 12 different ones;
   # we keep the first 5 (adjR2, R2, sigma, statistic, p-value)
   lin_model_stats <- glance(mod)[c("r.squared", "sigma", "p.value", "AIC")]
-  # RMSE
-  rmse <- function(y, yhat) sqrt(mean((yhat - y) ^ 2, na.rm = TRUE))
-  lin_model_stats$RMSE <- rmse(conc, predict(mod))
 
   names(lin_model_stats) <- paste0("lin_", names(lin_model_stats))
 
@@ -88,7 +85,6 @@ ffi_fit_models <- function(time, conc, area, volume) {
     rob_model_stats <- glance(robust)[c("sigma", "converged", "AIC")]
     tmod <- tidy(robust)
     rob_slope_stats <- tmod[2, c("estimate", "std.error")]
-    rob_slope_stats$RMSE <- rmse(conc, predict(robust))
 
 #    rob_int_stats <- tmod[1, c("estimate", "std.error")]
   },
@@ -112,8 +108,7 @@ ffi_fit_models <- function(time, conc, area, volume) {
   if(length(time) > 3) {
     try({
       poly <- lm(conc ~ poly(time, 3))
-      poly_model_stats <- glance(poly)[c("r.squared", "AIC")]
-      poly_model_stats$RMSE <- rmse(conc, predict(poly))
+      poly_model_stats <- glance(poly)[c("r.squared", "sigma", "AIC")]
     })
   }
 
@@ -127,18 +122,20 @@ ffi_fit_models <- function(time, conc, area, volume) {
   # statistics by log-transforming the data
   if(is.na(slope_stats$HM81_flux.estimate)) {
     hm81_model_stats <- data.frame(r.squared = NA_real_, sigma = NA_real_,
-                                   p.value = NA_real_, AIC = NA_real_, RMSE = NA_real_)
+                                   p.value = NA_real_, AIC = NA_real_)
   } else {
     ffi_message("NOTE: HM81_flux.estimate is not NA, implying nonlinear data")
     # The time values are probably normalized, i.e. starting at zero
     # Add a (presumably) tiny offset so we don't get log(0) errors
     mod <- lm(conc ~ log(time + 0.01))
     hm81_model_stats <- glance(mod)[c("r.squared", "sigma", "p.value", "AIC")]
-    hm81_model_stats$RMSE <- rmse(conc, predict(mod))
   }
 
   names(hm81_model_stats) <- paste0("HM81_", names(hm81_model_stats))
   model_stats <- cbind(model_stats, hm81_model_stats)
+
+  # Change "sigma" to "RMSE"; more intuitive for most users
+  names(model_stats) <- gsub("sigma", "RMSE", names(model_stats))
 
   # Combine, sort columns, and return
   out <- cbind(model_stats, slope_stats, int_stats)
