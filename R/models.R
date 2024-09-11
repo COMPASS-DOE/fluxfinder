@@ -65,8 +65,8 @@ ffi_fit_models <- function(time, conc, area, volume) {
   # we keep the first 5 (adjR2, R2, sigma, statistic, p-value)
   lin_model_stats <- glance(mod)[c("r.squared", "sigma", "p.value", "AIC")]
   # RMSE
-  pred <- predict(mod)
-  lin_model_stats$RMSE <- sqrt(mean((pred - conc) ^ 2, na.rm = TRUE))
+  rmse <- function(y, yhat) sqrt(mean((yhat - y) ^ 2, na.rm = TRUE))
+  lin_model_stats$RMSE <- rmse(conc, predict(mod))
 
   names(lin_model_stats) <- paste0("lin_", names(lin_model_stats))
 
@@ -88,8 +88,7 @@ ffi_fit_models <- function(time, conc, area, volume) {
     rob_model_stats <- glance(robust)[c("sigma", "converged", "AIC")]
     tmod <- tidy(robust)
     rob_slope_stats <- tmod[2, c("estimate", "std.error")]
-    pred <- predict(robust)
-    rob_slope_stats$RMSE <- sqrt(mean((pred - conc) ^ 2, na.rm = TRUE))
+    rob_slope_stats$RMSE <- rmse(conc, predict(robust))
 
 #    rob_int_stats <- tmod[1, c("estimate", "std.error")]
   },
@@ -114,8 +113,7 @@ ffi_fit_models <- function(time, conc, area, volume) {
     try({
       poly <- lm(conc ~ poly(time, 3))
       poly_model_stats <- glance(poly)[c("r.squared", "AIC")]
-      pred <- predict(poly)
-      poly_model_stats$RMSE <- sqrt(mean((pred - conc) ^ 2, na.rm = TRUE))
+      poly_model_stats$RMSE <- rmse(conc, predict(poly))
     })
   }
 
@@ -136,8 +134,7 @@ ffi_fit_models <- function(time, conc, area, volume) {
     # Add a (presumably) tiny offset so we don't get log(0) errors
     mod <- lm(conc ~ log(time + 0.01))
     hm81_model_stats <- glance(mod)[c("r.squared", "sigma", "p.value", "AIC")]
-    pred <- predict(mod)
-    hm81_model_stats$RMSE <- sqrt(mean((pred - conc) ^ 2, na.rm = TRUE))
+    hm81_model_stats$RMSE <- rmse(conc, predict(mod))
   }
 
   names(hm81_model_stats) <- paste0("HM81_", names(hm81_model_stats))
