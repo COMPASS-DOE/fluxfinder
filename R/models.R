@@ -15,7 +15,7 @@
 #'
 #' For each model type, the following columns are returned:
 #' * Model statistics \code{AIC}, \code{r.squared}, \code{sigma},
-#'  and \code{p.value};
+#' \code{p.value}, and \code{RMSE};
 #' * Flux (slope) statistics \code{flux.estimate} and \code{flux.std.error};
 #' * Intercept statistics \code{int.estimate} and \code{int.std.error};
 #' * For the robust linear regression model only,
@@ -64,9 +64,13 @@ ffi_fit_models <- function(time, conc, area, volume) {
   # Linear model overall metrics. 'glance' produces 12 different ones;
   # we keep the first 5 (adjR2, R2, sigma, statistic, p-value)
   lin_model_stats <- glance(mod)[c("r.squared", "sigma", "p.value", "AIC")]
+  # RMSE
+  pred <- predict(mod)
+  lin_model_stats$RMSE <- sqrt(mean((pred - conc) ^ 2, na.rm = TRUE))
+
   names(lin_model_stats) <- paste0("lin_", names(lin_model_stats))
 
-  # Slope and intercept statistics
+    # Slope and intercept statistics
   tmod <- tidy(mod)
   lin_slope_stats <- tmod[2, c("estimate", "std.error")]
   names(lin_slope_stats) <- paste0("lin_flux.", names(lin_slope_stats))
@@ -84,11 +88,15 @@ ffi_fit_models <- function(time, conc, area, volume) {
     rob_model_stats <- glance(robust)[c("sigma", "converged", "AIC")]
     tmod <- tidy(robust)
     rob_slope_stats <- tmod[2, c("estimate", "std.error")]
+    pred <- predict(robust)
+    rob_slope_stats$RMSE <- sqrt(mean((pred - conc) ^ 2, na.rm = TRUE))
+
 #    rob_int_stats <- tmod[1, c("estimate", "std.error")]
   },
   error = function(e) {
     warning("Could not fit robust linear model")
-    rob_model_stats <- data.frame(sigma = NA_real_, converged = FALSE, AIC = NA_real_)
+    rob_model_stats <- data.frame(sigma = NA_real_, converged = FALSE,
+                                  AIC = NA_real_, RMSE = NA_real_)
     rob_slope_stats <- data.frame(estimate = NA_real_, std.error = NA_real_)
     # rob_int_stats <- data.frame(estimate = NA_real_, std.error = NA_real_)
   })
@@ -101,11 +109,13 @@ ffi_fit_models <- function(time, conc, area, volume) {
   # int_stats <- cbind(int_stats, rob_int_stats)
 
   # Add polynomial regression as a QA/QC check
-  poly_model_stats <- data.frame(r.squared = NA_real_, AIC = NA_real_)
+  poly_model_stats <- data.frame(r.squared = NA_real_, AIC = NA_real_, RMSE = NA_real_)
   if(length(time) > 3) {
     try({
       poly <- lm(conc ~ poly(time, 3))
       poly_model_stats <- glance(poly)[c("r.squared", "AIC")]
+      pred <- predict(poly)
+      poly_model_stats$RMSE <- sqrt(mean((pred - conc) ^ 2, na.rm = TRUE))
     })
   }
 
@@ -117,15 +127,17 @@ ffi_fit_models <- function(time, conc, area, volume) {
 
   # The HM1981 approach is based on an exponential model, so derive fit
   # statistics by log-transforming the data
-  if(!is.na(slope_stats$HM81_flux.estimate)) {
-    ffi_message("NOTE: HM81_flux.estimate is not NA, implying nonlinear data")
+  if(is.na(slope_stats$HM81_flux.estimate)) {
     hm81_model_stats <- data.frame(r.squared = NA_real_, sigma = NA_real_,
-                                   p.value = NA_real_, AIC = NA_real_)
+                                   p.value = NA_real_, AIC = NA_real_, RMSE = NA_real_)
   } else {
+    ffi_message("NOTE: HM81_flux.estimate is not NA, implying nonlinear data")
     # The time values are probably normalized, i.e. starting at zero
     # Add a (presumably) tiny offset so we don't get log(0) errors
     mod <- lm(conc ~ log(time + 0.01))
     hm81_model_stats <- glance(mod)[c("r.squared", "sigma", "p.value", "AIC")]
+    pred <- predict(mod)
+    hm81_model_stats$RMSE <- sqrt(mean((pred - conc) ^ 2, na.rm = TRUE))
   }
 
   names(hm81_model_stats) <- paste0("HM81_", names(hm81_model_stats))

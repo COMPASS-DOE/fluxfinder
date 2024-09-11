@@ -275,8 +275,9 @@ x <- round(x, 3)
 From the diagnostics returned by `ffi_compute_fluxes`:
 
 * `HM81_flux.estimate` is not `NA`, which only occurs with saturating behavior;
-* The `lin_AIC` (`r x$lin_AIC`) and `rob_AIC` (`r x$rob_AIC`) values are similar, so no indication of influential outliers;
+* The `lin_AIC` (`r x$lin_AIC`) and `rob_AIC` (`r x$rob_AIC`) [Akaike information criterion](https://en.wikipedia.org/wiki/Akaike_information_criterion) values are similar, so no indication of influential outliers;
 * The `lin_r.squared` (`r x$lin_r.squared`) and `poly_r.squared` (`r x$poly_r.squared`) values are _very_ different, suggesting a failure of the linear model;
+* The [root mean square error](https://en.wikipedia.org/wiki/Root_mean_square_deviation) (RMSE) of the linear model is much higher than the other models' values;
 * The `HM81_r.squared` (`r x$HM81_r.squared`) and `HM81_AIC` (`r x$HM81_AIC`) are considerably higher and lower, respectively, than the linear model. 
 
 All of these metrics point to a common conclusion: a linear model is _not_
