@@ -298,6 +298,8 @@ ffi_read_LIsmartchamber <- function(file, concentrations = TRUE) {
 
   # Combine everything into a single data frame
   out <- do.call("rbind", final_dat)
+  row.names(out) <- NULL
+
   if(concentrations) {
     out$TIMESTAMP <- ymd_hms(out$Date, tz = out$TimeZone[1]) + out$timestamp
   } else {

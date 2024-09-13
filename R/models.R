@@ -38,7 +38,7 @@
 #' 1981. \url{http://dx.doi.org/10.2136/sssaj1981.03615995004500020017x}
 #' @importFrom broom glance tidy
 #' @importFrom MASS rlm
-#' @importFrom stats lm predict
+#' @importFrom stats lm
 #' @export
 #' @examples
 #' # Toy data - linear

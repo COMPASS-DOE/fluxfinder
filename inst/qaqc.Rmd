@@ -19,31 +19,38 @@ theme_set(theme_bw())
 # Read the flux data
 if(params$flux_data == "") {
   fd <- readRDS("extdata/LI8200-01S_fluxes")
-  cd <- readRDS("extdata/LI8200-01S_concentrations")
-  groupcol <- "group"
+ cd <- readRDS("extdata/LI8200-01S_concentrations")
+  groupcol <- "label"
 } else {
   fd <- readRDS(params$flux_data)
   groupcol <- params$group_column
+  
+  if(params$conc_data != "") {
+      cd <- readRDS(params$conc_data)
+  }
 }
 
 # Utility function: add labels to the lowest X%
 add_labels <- function(x, col1, col2, level, gc = groupcol) {
   absdiff <- abs(x[[col1]] - x[[col2]]) #/ x[[col1]])
   outthere <- absdiff > quantile(absdiff, probs = level)
-  x$label <- NA
+  x$.label <- NA
   if(is.null(gc)) {
-    x$label[outthere] <- seq_len(nrow(x))[outthere]
+    x$.label[outthere] <- seq_len(nrow(x))[outthere]
   } else {
-    x$label[outthere] <- x[[gc]][outthere]
+    x$.label[outthere] <- x[[gc]][outthere]
   }
   return(x)
 }
 
 ```
 
-File: `r params$flux_data`
+Fluxes file: `r params$flux_data`
 
 Rows of flux data: `r nrow(fd)`
+
+Concentrations file: `r params$conc_data`
+
 
 # Flux distribution and outliers
 
@@ -79,13 +86,11 @@ Fluxes that depart from the 1:1 may have influential outliers in the underlying 
 ```{r, linear-versus-robust}
 fd <- add_labels(fd, "lin_flux.estimate", "rob_flux.estimate", level = 0.90)
 p <- ggplot(fd, aes(lin_flux.estimate, rob_flux.estimate, 
-                    color = is.na(label), label = label)) +
+                    color = .label, label = .label)) +
   geom_point() +
   ggrepel::geom_text_repel(size = 5, na.rm = TRUE) +
   geom_abline() +
   theme(legend.position = "none")
-
-#if(!is.null(group_column)) p <- p + aes(color = .data[[group_column]])
 
 print(p)
 ```
@@ -97,28 +102,59 @@ Fluxes that depart from the 1:1 may have nonlinearity issues in the underlying d
 ```{r, linear-versus-polynomial}
 fd <- add_labels(fd, "lin_r.squared", "poly_r.squared", level = 0.90)
 p <- ggplot(fd, aes(lin_r.squared, poly_r.squared, 
-                    color = is.na(label), label = label)) +
+                    color = is.na(.label), label = .label)) +
   geom_point() +
   ggrepel::geom_text_repel(size = 5, na.rm = TRUE) +
   geom_abline() + 
   theme(legend.position = "none")
 
-#if(!is.null(group_column)) p <- p + aes(color = .data[[group_column]])
+print(p)
+```
+
+### Linear model versus HM81 model
+
+Fluxes that depart from the 1:1 may have nonlinearity issues in the underlying data.
+
+```{r, linear-versus-hm81}
+fdp <- fd[!is.na(fd$HM81_flux.estimate),]
+fdp <- add_labels(fdp, "lin_flux.estimate", "HM81_flux.estimate", level = 0.90)
+p <- ggplot(fdp, aes(lin_flux.estimate, HM81_flux.estimate, 
+                    color = is.na(.label), label = .label)) +
+  geom_point() +
+  ggrepel::geom_text_repel(size = 5, na.rm = TRUE) +
+  geom_abline() + 
+  theme(legend.position = "none")
 
 print(p)
 ```
 
+
 # Observations and fitted fluxes
 
 ```{r}
-for(g in unique(cd[[groupcol]])) {
-  pd <- cd[cd[[groupcol]] == g,]
-  fpd <- fd[fd[[groupcol]] == g,]
-  pd$Seconds <- fluxfinder:::ffi_normalize_time(pd$TIMESTAMP)
-  p <- ggplot(pd, aes(Seconds, co2)) + geom_point() 
-  p <- p + geom_abline(intercept = fpd$lin_int.estimate, slope = fpd$lin_flux.estimate)
-  p <- p + ggtitle(g)
-  print(p)
+if(exists("cd")) {
+  
+#  g <- "4"
+  for(g in unique(cd[[groupcol]])) {
+    pd <- cd[cd[[groupcol]] == g,]
+    pd$Seconds <- fluxfinder:::ffi_normalize_time(pd$TIMESTAMP)
+    fpd <- fd[fd[[groupcol]] == g,]
+    
+    p <- ggplot(pd, aes(Seconds, CO2_umol_m2)) + geom_point() 
+    p <- p + geom_abline(intercept = fpd$lin_int.estimate, slope = fpd$lin_flux.estimate, 
+                         color = "black", linetype = 2)
+    
+    if(!is.na(fpd$HM81_flux.estimate)) {
+      hm81mod <- lm(CO2_umol_m2 ~ log(Seconds + 0.01), data = pd)
+      hm81int <- coefficients(hm81mod[1])
+      p <- p + geom_abline(intercept = hm81int, slope = fpd$HM81_flux.estimate, 
+                           color = "red", linetype = 2)
+    }
+    p <- p + ggtitle(paste(g, "lin_r.squared =", round(fpd$lin_r.squared, 3)))
+    print(p)
+  }
+} else {
+  message("No concentration data were provided!")
 }
 
 ```
