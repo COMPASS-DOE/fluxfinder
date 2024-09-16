@@ -131,6 +131,8 @@ print(p)
 
 # Observations and fitted fluxes
 
+Linear model in black, <span style="color:red">HM81 model in red</span>.
+
 ```{r}
 if(exists("cd")) {
   
