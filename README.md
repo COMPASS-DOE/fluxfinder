@@ -21,7 +21,13 @@ the more powerful flux-computation capabilities of the
 
 ## Installation
 
-You can install the development version of fluxfinder from [GitHub](https://github.com/) with:
+You can install `fluxfinder` from CRAN...
+
+```r
+install.packages("fluxfinder")
+```
+
+...or the development version of fluxfinder from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("remotes")

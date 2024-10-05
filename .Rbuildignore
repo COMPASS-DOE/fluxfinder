@@ -3,3 +3,5 @@
 ^LICENSE\.md$
 ^\.github$
 ^examples$
+^cran-comments\.md$
+^inst/qaqc.html$
