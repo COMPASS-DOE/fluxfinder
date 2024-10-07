@@ -25,7 +25,7 @@ character; pass NULL to run with no grouping}
 \item{open_output}{Automatically open the output HTML file?}
 }
 \value{
-The path of the output file
+The path of the output file.
 }
 \description{
 Generate a QA/QC document
