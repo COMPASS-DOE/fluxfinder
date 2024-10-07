@@ -8,6 +8,7 @@
 #' and \code{\link{ffi_read_LI7820}}, and not normally called by users.
 #' @importFrom utils read.table
 #' @importFrom lubridate ymd_hms
+#' @keywords internal
 #' @return A \code{\link{data.frame}} with the parsed data.
 ffi_read_LI78x0 <- function(file, model) {
 

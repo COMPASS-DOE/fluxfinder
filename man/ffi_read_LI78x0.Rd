@@ -21,3 +21,4 @@ Internal utility function to read LI-78x0 files
 The is an internal function used by \code{\link{ffi_read_LI7810}}
 and \code{\link{ffi_read_LI7820}}, and not normally called by users.
 }
+\keyword{internal}

@@ -10,7 +10,7 @@
 #' @param output_dir Name of the output directory; default is current working directory
 #' @param open_output Automatically open the output HTML file?
 #' @importFrom utils browseURL
-#' @return The path of the output file
+#' @return The path of the output file.
 #' @export
 #'
 #' @examples
