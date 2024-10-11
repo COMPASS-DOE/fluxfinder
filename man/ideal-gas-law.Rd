@@ -40,5 +40,5 @@ ffi_ppb_to_nmol(400, 0.1)
 Steduto et al.:
 Automated closed-system canopy-chamber for continuous field-crop monitoring
 of CO2 and H2O fluxes, Agric. For. Meteorol., 111:171-186, 2002.
-\url{http://dx.doi.org/10.1016/S0168-1923(02)00023-0}
+\doi{10.1016/S0168-1923(02)00023-0}
 }

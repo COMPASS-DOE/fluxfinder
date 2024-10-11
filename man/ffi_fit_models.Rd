@@ -64,9 +64,9 @@ ffi_fit_models(dat$SECONDS, dat$CO2)
 Nakano, T., Sawamoto, T., Morishita, T., Inoue, G., and Hatano, R.:
 A comparison of regression methods for estimating soil–atmosphere diffusion
 gas fluxes by a closed-chamber technique, Soil Biol. Biochem.,
-36, 107–113, 2004. \url{http://dx.doi.org/10.1016/j.soilbio.2003.07.005}
+36, 107–113, 2004. \doi{10.1016/j.soilbio.2003.07.005}
 
 Hutchinson, G. L. and Mosier, A. R.: Improved soil cover method for field
 measurement of nitrous oxide fluxes, Soil Sci. Soc. Am. J., 45, 311-316,
-1981. \url{http://dx.doi.org/10.2136/sssaj1981.03615995004500020017x}
+1981. \doi{10.2136/sssaj1981.03615995004500020017x}
 }
