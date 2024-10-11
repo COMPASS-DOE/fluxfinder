@@ -11,7 +11,7 @@
 #' @references Steduto et al.:
 #' Automated closed-system canopy-chamber for continuous field-crop monitoring
 #' of CO2 and H2O fluxes, Agric. For. Meteorol., 111:171-186, 2002.
-#' \url{http://dx.doi.org/10.1016/S0168-1923(02)00023-0}
+#' \doi{10.1016/S0168-1923(02)00023-0}
 #' @note If \code{temp} and/or \code{atm} are not provided, the defaults
 #' are NIST normal temperature and pressure.
 #' @name ideal-gas-law

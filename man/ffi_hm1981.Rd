@@ -28,5 +28,5 @@ ffi_hm1981(Puromycin$conc, Puromycin$rate)
 \references{
 Hutchinson, G. L. and Mosier, A. R.: Improved soil cover method for field
 measurement of nitrous oxide fluxes, Soil Sci. Soc. Am. J., 45, 311-316,
-1981. \url{http://dx.doi.org/10.2136/sssaj1981.03615995004500020017x}
+1981. \doi{10.2136/sssaj1981.03615995004500020017x}
 }
