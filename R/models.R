@@ -204,6 +204,8 @@ ffi_normalize_time <- function(time, normalize = TRUE) {
 #' \code{data}, character
 #' @param dead_band Length of dead band, the equilibration period at the
 #' beginning of the time series during which data are ignore, in seconds (numeric)
+#' @param c0_band Length of the period at the beginning of the time series
+#' that is used to determine an ambient or pre-flux concentration, in second (numeric)
 #' @param normalize_time Normalize the values so that first is zero? Logical
 #' @param fit_function Optional flux-fit function;
 #' default is \code{\link{ffi_fit_models}}
@@ -211,7 +213,8 @@ ffi_normalize_time <- function(time, normalize = TRUE) {
 #' @return A data.frame with one row per \code{group_column} value. It will
 #' always include the mean, minimum, and maximum values of \code{time_column}
 #' for that group, but other
-#' columns depend on what is returned by the \code{fit_function}.
+#' columns depend on what is returned by the \code{fit_function}. The \code{c0} column
+#' is the average concentration over the first \code{c0_band} in seconds.
 #' @seealso \code{\link{ffi_fit_models}}
 #' @export
 #' @examples
@@ -226,6 +229,7 @@ ffi_compute_fluxes <- function(data,
                                time_column,
                                gas_column,
                                dead_band = 0,
+                               c0_band = 5,
                                normalize_time = TRUE,
                                fit_function = ffi_fit_models,
                                ...) {
@@ -249,11 +253,13 @@ ffi_compute_fluxes <- function(data,
   # passing volume and area?
   f <- function(x, ...) {
     x$.norm_time <- ffi_normalize_time(x[,time_column], normalize_time)
+    c0 <- mean(x[x$.norm_time <= c0_band, gas_column])
     x <- x[x$.norm_time >= dead_band,] # exclude dead band data
     out <- fit_function(x$.norm_time, x[,gas_column], ...)
     out[time_column] <- mean(x[,time_column])
     out[paste0(time_column, "_min")] <- min(x[,time_column])
     out[paste0(time_column, "_max")] <- max(x[,time_column])
+    out$c0 <- c0
     return(out)
   }
 
