@@ -253,12 +253,19 @@ ffi_compute_fluxes <- function(data,
   # passing volume and area?
   f <- function(x, ...) {
     x$.norm_time <- ffi_normalize_time(x[,time_column], normalize_time)
+
+    # Sanity checks
+    min_time <- min(x[,time_column])
+    max_time <- max(x[,time_column])
+    if(dead_band >= max_time) stop("dead_band is larger than given time window")
+    if(c0_band >= max_time) stop("c0_band is larger than given time window")
+
     c0 <- mean(x[x$.norm_time <= c0_band, gas_column])
     x <- x[x$.norm_time >= dead_band,] # exclude dead band data
     out <- fit_function(x$.norm_time, x[,gas_column], ...)
     out[time_column] <- mean(x[,time_column])
-    out[paste0(time_column, "_min")] <- min(x[,time_column])
-    out[paste0(time_column, "_max")] <- max(x[,time_column])
+    out[paste0(time_column, "_min")] <- min_time
+    out[paste0(time_column, "_max")] <- max_time
     out$c0 <- c0
     return(out)
   }
