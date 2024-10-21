@@ -10,6 +10,7 @@ ffi_compute_fluxes(
   time_column,
   gas_column,
   dead_band = 0,
+  c0_band = 5,
   normalize_time = TRUE,
   fit_function = ffi_fit_models,
   ...
@@ -29,6 +30,9 @@ pass NULL to run with no grouping}
 \item{dead_band}{Length of dead band, the equilibration period at the
 beginning of the time series during which data are ignore, in seconds (numeric)}
 
+\item{c0_band}{Length of the period at the beginning of the time series
+that is used to determine an ambient or pre-flux concentration, in second (numeric)}
+
 \item{normalize_time}{Normalize the values so that first is zero? Logical}
 
 \item{fit_function}{Optional flux-fit function;
@@ -40,7 +44,8 @@ default is \code{\link{ffi_fit_models}}}
 A data.frame with one row per \code{group_column} value. It will
 always include the mean, minimum, and maximum values of \code{time_column}
 for that group, but other
-columns depend on what is returned by the \code{fit_function}.
+columns depend on what is returned by the \code{fit_function}. The \code{c0} column
+is the average concentration over the first \code{c0_band} in seconds.
 }
 \description{
 Compute fluxes for multiple groups (measurements)
