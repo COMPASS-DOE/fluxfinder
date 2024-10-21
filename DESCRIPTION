@@ -3,7 +3,7 @@ Type: Package
 Title: Parsing, Computation, and Diagnostics for Greenhouse Gas Measurements
 Version: 1.0.0
 Authors@R: c(
-    person("Stephanie", "Wilson", email = "wilsonsj@si.edu", 
+    person("Stephanie", "Wilson", email = "sjw22120@gmail.com", 
         role = "cre", comment = c(ORCID = "0000-0002-5484-0748")),
     person("Ben", "Bond-Lamberty", email = "bondlamberty@pnnl.gov",
         role = "aut", comment = c(ORCID = "0000-0001-9525-4633")),
