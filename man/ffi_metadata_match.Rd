@@ -47,7 +47,7 @@ ffi_metadata_match(d_t, s_d, s_t, ol)
 # has no match
 
 # This generates an error because of overlapping timestamps:
-\dontrun{
+\donttest{
 s_t <- c("13:00:00", "13:01:00")
 ffi_metadata_match(d_t, s_d, s_t, ol)
 }
