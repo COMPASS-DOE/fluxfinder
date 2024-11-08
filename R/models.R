@@ -170,7 +170,7 @@ ffi_hm1981 <- function(time, conc, h = 1) {
 
   # This approach is only valid when (C1-C0)/(C2-C1) > 1, i.e. saturating
   logterm <- (C1 - C0) / (C2 - C1)
-  if(logterm > 1) {
+  if(isTRUE(logterm > 1)) {
     (h * (C1 - C0)) ^ 2 / (0.5 * Tmax * (2 * C1 - C2 - C0)) * log(logterm)
   } else {
     NA_real_
