@@ -39,7 +39,7 @@ test_that("ffi_compute_fluxes works", {
   ff <- function(a, b) data.frame(x = 1) # dummy fit function
 
   # Normalize times
-  out <- ffi_compute_fluxes(x, "Plot", "time", "conc",
+  out <- ffi_compute_fluxes(x, "Plot", "time", "conc", c0_band = 1,
                             fit_function = ff, normalize_time = TRUE)
   expect_s3_class(out, "data.frame")
   expect_identical(out$Plot, plots) # one row per plot
@@ -47,8 +47,14 @@ test_that("ffi_compute_fluxes works", {
   expect_identical(out$time_min, rep(min(times), nrow(out))) # min of raw times
   expect_identical(out$time_max, rep(max(times), nrow(out))) # max of raw times
 
+  # Catches bad band values
+  expect_error(ffi_compute_fluxes(cars, group_column = NULL, "speed", "dist", dead_band = 6000),
+                regexp = "dead_band is larger than")
+  expect_error(ffi_compute_fluxes(cars, group_column = NULL, "speed", "dist", c0_band = 6000),
+               regexp = "c0_band is larger than")
+
   # Raw times
-  out <- ffi_compute_fluxes(x, "Plot", "time", "conc",
+  out <- ffi_compute_fluxes(x, "Plot", "time", "conc", c0_band = 1,
                             fit_function = ff, normalize_time = FALSE)
   expect_identical(out$Plot, plots) # one row per plot
   expect_identical(out$time, rep(mean(times), nrow(out))) # mean of raw times
@@ -56,7 +62,7 @@ test_that("ffi_compute_fluxes works", {
   expect_identical(out$time_max, rep(max(times), nrow(out))) # max of raw times
 
   # Passing NULL for the group column should return a single row
-  out <- ffi_compute_fluxes(x, NULL, "time", "conc",
+  out <- ffi_compute_fluxes(x, NULL, "time", "conc", c0_band = 1,
                             fit_function = ff, normalize_time = TRUE)
   expect_s3_class(out, "data.frame")
   expect_identical(nrow(out), 1L) # one row
