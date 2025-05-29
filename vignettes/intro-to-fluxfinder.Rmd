@@ -189,7 +189,9 @@ fluxes <- ffi_compute_fluxes(dat,
                              group_column = "Plot", 
                              time_column = "TIMESTAMP", 
                              gas_column = "CO2_umol_m2",
-                             dead_band = 10)
+                             dead_band = 10) 
+#Here we use a constant dead band value, but this can also vary by group; see the documentation
+
 
 # By default, ffi_compute_fluxes returns a data.frame with one row per
 # grouping variable value (i.e., per measurement). The first column is the
