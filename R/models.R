@@ -202,8 +202,9 @@ ffi_normalize_time <- function(time, normalize = TRUE) {
 #' @param time_column Name of the time column in \code{data}, character
 #' @param gas_column Name of the gas (concentration or quantity) column in
 #' \code{data}, character
-#' @param dead_band Length of dead band, the equilibration period at the
-#' beginning of the time series during which data are ignore, in seconds (numeric)
+#' @param dead_band Length of the dead band in seconds (numeric), the equilibration
+#' period whose data is dropped. This can be either a single number OR the name of the
+#' dead band column in \code{data}
 #' @param normalize_time Normalize the values so that first is zero? Logical
 #' @param fit_function Optional flux-fit function;
 #' default is \code{\link{ffi_fit_models}}
@@ -245,11 +246,27 @@ ffi_compute_fluxes <- function(data,
     x <- split(data, data[group_column])
   }
 
+  # Check if dead band is a constant or column name
+  constant_dead_band <- is.numeric(dead_band) && length(dead_band) == 1
+  if(!constant_dead_band) {
+    if(!dead_band %in% colnames(data)) {
+      stop("There is no '", dead_band, "' column in the data")
+    }
+  }
+
   # Compute flux for each sample
   # passing volume and area?
   f <- function(x, ...) {
     x$.norm_time <- ffi_normalize_time(x[,time_column], normalize_time)
-    x <- x[x$.norm_time >= dead_band,] # exclude dead band data
+
+    # exclude dead band data
+    if(constant_dead_band) {
+      x <- x[x$.norm_time >= dead_band,] #constant dead band value
+    } else {
+      this_group_db <- x[,dead_band][1]
+      x <- x[x$.norm_time >= this_group_db,] #per group dead band value
+    }
+
     out <- fit_function(x$.norm_time, x[,gas_column], ...)
     out[time_column] <- mean(x[,time_column])
     out[paste0(time_column, "_min")] <- min(x[,time_column])

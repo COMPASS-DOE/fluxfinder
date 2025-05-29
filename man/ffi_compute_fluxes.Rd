@@ -26,8 +26,9 @@ pass NULL to run with no grouping}
 \item{gas_column}{Name of the gas (concentration or quantity) column in
 \code{data}, character}
 
-\item{dead_band}{Length of dead band, the equilibration period at the
-beginning of the time series during which data are ignore, in seconds (numeric)}
+\item{dead_band}{Length of the dead band in seconds (numeric), the equilibration
+period whose data is dropped. This can be either a single number OR the name of the
+dead band column in \code{data}}
 
 \item{normalize_time}{Normalize the values so that first is zero? Logical}
 

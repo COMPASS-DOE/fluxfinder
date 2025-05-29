@@ -47,6 +47,14 @@ test_that("ffi_compute_fluxes works", {
   expect_identical(out$time_min, rep(min(times), nrow(out))) # min of raw times
   expect_identical(out$time_max, rep(max(times), nrow(out))) # max of raw times
 
+  # Dead band
+  expect_error(ffi_compute_fluxes(x, "Plot", "time", "conc", dead_band = "db"),
+               regexp = "There is no")
+  db1 <- ffi_compute_fluxes(x, "Plot", "time", "conc", dead_band = 0, fit_function = ff)
+  x$db <- 0
+  db2  <- ffi_compute_fluxes(x, "Plot", "time", "conc", dead_band = "db", fit_function = ff)
+  expect_identical(db1, db2)
+
   # Raw times
   out <- ffi_compute_fluxes(x, "Plot", "time", "conc",
                             fit_function = ff, normalize_time = FALSE)
