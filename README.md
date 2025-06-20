@@ -40,7 +40,7 @@ Currently `fluxfinder` provides functions to read data from:
 
 * The [LI-COR Smart Chamber](https://www.licor.com/env/products/soil-flux/smart-chamber)
 * [LI-COR 78xx Trace Gas Analyzers](https://www.licor.com/env/products/trace-gas/), including the LI-7810 and LI-7820
-* Older [LGR 915](https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers) analyzers
+* Older [LGR 915](https://global.abb/) analyzers
 * The [Picarro G2301](https://www.picarro.com/environmental/products/g2301_gas_concentration_analyzer)
 * The [EGM-4](https://ppsystems.com/download/technical_manuals/80061-1%20EGM4_Operation_V419.pdf)
 * The [LI-COR LI-850](https://www.licor.com/env/support/LI-850/topics/specifications.html)
