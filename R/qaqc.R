@@ -40,6 +40,7 @@ ffi_qaqc <- function(flux_data,
   fout <- rmarkdown::render(f,
                             output_file = output_file,
                             output_dir = output_dir,
+                            knit_root_dir = output_dir,
                             quiet = ffi_isquiet(),
                             params = list(flux_data = tf_flux_data,
                                           group_column = group_column))
