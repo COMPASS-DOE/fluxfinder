@@ -1,5 +1,4 @@
-# fluxfinder 1.2.0
+# fluxfinder 1.2.1
 
-# fluxfinder 1.1.1
-
-* CRAN resubmission.
+* Added a3
+`NEWS.md` file to track changes to the package.
