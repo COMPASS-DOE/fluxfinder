@@ -31,10 +31,14 @@ The path of the output file.
 Generate a QA/QC document
 }
 \examples{
+# We don't run this example because of tempfile errors on CRAN,
+# but it works fine otherwise!
+\dontrun{
 # Toy data
 cars$Plot <- c("A", "B")
 fd <- ffi_compute_fluxes(cars, "Plot", "speed", "dist")
 x <- ffi_qaqc(fd, group_column = "Plot", output_dir = tempdir())
 file.remove(x) # clean up
+}
 # See the introductory vignette for a fully-worked example with real data
 }
