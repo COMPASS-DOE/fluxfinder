@@ -20,7 +20,7 @@
 #' # Toy data
 #' cars$Plot <- c("A", "B")
 #' fd <- ffi_compute_fluxes(cars, "Plot", "speed", "dist")
-#' x <- ffi_qaqc(fd, group_column = "Plot", output_dir = tempdir())
+#' x <- ffi_qaqc(fd, group_column = "Plot")
 #' file.remove(x) # clean up
 #' }
 #' # See the introductory vignette for a fully-worked example with real data
