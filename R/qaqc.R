@@ -14,7 +14,7 @@
 #' @export
 #'
 #' @examples
-#' # Toy data
+#' # Toy  data
 #' cars$Plot <- c("A", "B")
 #' fd <- ffi_compute_fluxes(cars, "Plot", "speed", "dist")
 #' x <- ffi_qaqc(fd, group_column = "Plot", output_dir = tempdir())
