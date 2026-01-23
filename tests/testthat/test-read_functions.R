@@ -107,9 +107,13 @@ test_that("ffi_read_LIsmartchamber works", {
   expect_true("TIMESTAMP" %in% names(x))
   expect_s3_class(x$TIMESTAMP, "POSIXct")
 
-  # Bad data with no concentration data
+  # Bad data -- no concentration data
   expect_warning(ffi_read_LIsmartchamber("data/LI8200-01S-bad-data.json"),
                  regexp = "0-row data")
+  # Bad data -- no footer
+  # (see https://github.com/COMPASS-DOE/fluxfinder/issues/113)
+  expect_warning(ffi_read_LIsmartchamber("data/LI8200_bad_no_footer.json"),
+                 regexp = "No footer")
 })
 
 test_that("ffi_read_LI850 works", {
